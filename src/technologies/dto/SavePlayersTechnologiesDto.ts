@@ -7,9 +7,5 @@ export class SavePlayersTechnologiesDto {
 
     @IsDefined()
     @IsNumber()
-    gameId: number;
-
-    @IsDefined()
-    @IsNumber()
     technologyId: number;
 }

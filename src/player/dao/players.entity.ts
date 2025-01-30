@@ -25,4 +25,24 @@ export class Player {
         default: 0,
     })
     tradePoints: number
+
+    @Column({
+        default: 1
+    })
+    infantryLevel: number
+
+    @Column({
+        default: 1
+    })
+    cavalryLevel: number
+
+    @Column({
+        default: 1
+    })
+    artilleryLevel: number
+
+    @Column({
+        default: false
+    })
+    aviation: boolean
 }

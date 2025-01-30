@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayersTechnologies } from '../dao/players-technologies.entity';
-import { SavePlayersTechnologiesDto } from '../dto/SavePlayersTechnologiesDto';
+import { SavePlayersTechnologiesDto } from '../../technologies/dto/SavePlayersTechnologiesDto';
 
 @Injectable()
 export class PlayersTechnologiesRepository {
@@ -11,15 +11,12 @@ export class PlayersTechnologiesRepository {
         private readonly repository: Repository<PlayersTechnologies>,
     ) {}
 
-    public async getPlayerTechnologies(playerId?: number, gameId?: number, technologyId?: number, level?: number): Promise<PlayersTechnologies[]> {
+    public async getPlayerTechnologies(playerId?: number, technologyId?: number, level?: number): Promise<PlayersTechnologies[]> {
 
         const playerTechnologies = await this.repository.find({
             where: {
                 player: {
                     id: playerId,
-                },
-                game: {
-                    id: gameId,
                 },
                 technology: {
                     id: technologyId,
@@ -29,7 +26,6 @@ export class PlayersTechnologiesRepository {
             relations: {
                 player: true,
                 technology: true,
-                game: true,
             }
         });
         return playerTechnologies;
@@ -39,9 +35,6 @@ export class PlayersTechnologiesRepository {
         return this.repository.save({
             player: {
                 id: data.playerId,
-            },
-            game: {
-                id: data.gameId,
             },
             technology: {
                 id: data.technologyId,
