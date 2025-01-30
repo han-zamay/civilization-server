@@ -3,8 +3,8 @@ import { GamesRepository } from "../repositories/games.repository";
 import { Game } from "../dao/games.entity";
 import { FASE_ORDER } from "../constants";
 import { SaveGameDto } from "../dto/SaveGameDto";
-import { Player } from "../dao/players.entity";
-import { PlayersRepository } from "../repositories/players.repository";
+import { Player } from "../../player/dao/players.entity";
+import { PlayersRepository } from "../../player/repositories/players.repository";
 import { UsersRepository } from "src/users/repositories/users.repository";
 
 @Injectable()

@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { GamesService } from './services/games.service';
 import { Game } from './dao/games.entity';
 import { SaveGameDto } from './dto/SaveGameDto';
-import { Player } from './dao/players.entity';
+import { Player } from '../player/dao/players.entity';
 
 @Controller('games')
 export class GamesController {

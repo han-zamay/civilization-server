@@ -2,13 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Player } from '../dao/players.entity';
+import { Resource } from '../../enums/resource';
 export type PlayerFilter = {
     id?: number,
     gameId?: number,
     playerId?: number,
     playersOrder?: number,
     coins?: number,
-    tradePoints?: number
+    tradePoints?: number,
+    resources?: Resource[]
 }
 @Injectable()
 export class PlayersRepository {
@@ -51,6 +53,7 @@ export class PlayersRepository {
             playersOrder: data.playersOrder,
             coins: data.coins,
             tradePoints: data.tradePoints,
+            resources: data.resources,
         });
     }
     private toWhereOptions(filter: PlayerFilter): FindOptionsWhere<Player> {

@@ -11,7 +11,7 @@ export class GamesRepository {
     ) {}
 
     public async getGame(id?: number): Promise<Game> {
-        const  game = this.repository.findOne({
+        const game = this.repository.findOne({
             where: {
                 id,
             },

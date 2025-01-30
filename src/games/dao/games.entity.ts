@@ -1,6 +1,5 @@
-import { Column, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm"
-import { Fase } from "../enums/fase"
-import { User } from "src/users/dao/users.entity"
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm"
+import { Fase } from "../../enums/fase"
 
 @Entity()
 export class Game {
