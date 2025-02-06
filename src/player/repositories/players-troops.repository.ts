@@ -1,45 +1,68 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PlayersTroops } from '../dao/players-troops.entity';
-import { TroopsType } from 'src/enums/troopsType';
+import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { PlayersTroops } from '../dao/player-troop.entity';
+import { TroopsType } from 'src/enums/troops-type';
+
+export type PlayersTroopsFilter = {
+	id?: number;
+	troopId?: number;
+	playerId?: number;
+	troopsType?: TroopsType;
+};
 
 @Injectable()
 export class PlayersTroopsRepository {
-    constructor(
-        @InjectRepository(PlayersTroops)
-        private readonly repository: Repository<PlayersTroops>,
-    ) {}
-    public async getPlayersTroops(playerId: number, troopsType?: TroopsType): Promise<PlayersTroops[]> {
-        const troops = this.repository.find({
-            where: {
-                player: {
-                    id: playerId,
-                },
-                troop: {
-                    type: troopsType,
-                }
-            },
-            relations: {
-                player: true,
-                troop: true,
-            }
-        })
-        return troops;
-    }
+	constructor(
+		@InjectRepository(PlayersTroops)
+		private readonly repository: Repository<PlayersTroops>,
+	) {}
 
-    public saveTroop(playerId: number, troopId: number): Promise<PlayersTroops> {
-        return this.repository.save({
-            player: {
-                id: playerId,
-            },
-            troop: {
-                id: troopId,
-            }
-        });
-    }
+	public get(filter: PlayersTroopsFilter): Promise<PlayersTroops> {
+		return this.repository.findOne({
+			where: this.toWhereOptions(filter),
+			relations: {
+				player: true,
+				troop: true,
+			},
+		});
+	}
 
-    public deleteTroop(troopId: number) {
-        this.repository.delete(troopId);
-    }
+	public getList(filter: PlayersTroopsFilter): Promise<PlayersTroops[]> {
+		return this.repository.find({
+			where: this.toWhereOptions(filter),
+			relations: {
+				player: true,
+				troop: true,
+			},
+		});
+	}
+
+	public save(data: PlayersTroopsFilter): Promise<PlayersTroops> {
+		return this.repository.save({
+			player: {
+				id: data.playerId,
+			},
+			troop: {
+				id: data.troopId,
+			},
+		});
+	}
+
+	public delete(id: number): Promise<DeleteResult> {
+		return this.repository.delete(id);
+	}
+
+	private toWhereOptions(filter: PlayersTroopsFilter): FindOptionsWhere<PlayersTroops> {
+		return {
+			id: filter?.id,
+			player: {
+				id: filter?.playerId,
+			},
+			troop: {
+				id: filter?.troopId,
+				type: filter?.troopsType,
+			},
+		};
+	}
 }

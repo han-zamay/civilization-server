@@ -1,93 +1,147 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { CitiesRepository } from "../repositories/cities.repository";
-import { City } from "../dao/cities.entity";
-import { CitiesBuildingsRepository } from "../repositories/cities-buildings.repository";
-import { CitiesBuildings } from "../dao/cities-buildings";
-import { BuildingsRepository } from "../repositories/buildings.repository";
-import { PlayersResources } from "src/player/dao/players-resources.entity";
-import { PlayersResourcesRepository } from "src/player/repositories/players-resources.repository";
-import { GainResourceDto } from "../dto/gainResourceDto";
-import { PlayersTroops } from "src/player/dao/players-troops.entity";
-import { GainTroopDto } from "../dto/GainTroopDto";
-import { TroopsType } from "src/enums/troopsType";
-import { PlayersRepository } from "src/player/repositories/players.repository";
-import { PlayersTroopsRepository } from "src/player/repositories/players-troops.repository";
-import { TroopsRepository } from "src/troops/repositories/troops.repository";
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CitiesRepository } from '../repositories/cities.repository';
+import { City } from '../dao/city.entity';
+import { CitiesBuildingsRepository } from '../repositories/cities-buildings.repository';
+import { CitiesBuildings } from '../dao/city-building.entity';
+import { BuildingsRepository } from '../repositories/buildings.repository';
+import { PlayersResources } from 'src/player/dao/player-resource.entity';
+import { GainResourceDto } from '../dto/gain-resource.dto';
+import { PlayersTroops } from 'src/player/dao/player-troop.entity';
+import { GainTroopDto } from '../dto/gain-troop.dto';
+import { TroopsType } from 'src/enums/troops-type';
+import { PlayersService } from 'src/player/services/players.service';
+import { TroopsService } from 'src/troops/troops.service';
+import { CreateBuildingDto } from '../dto/create-building.dto';
+import { Fase } from 'src/enums/fase';
+import { Resource } from 'src/enums/resource';
 
 @Injectable()
 export class CitiesService {
-    constructor(private readonly citiesRepository: CitiesRepository,
-                private readonly citiesBuildingsRepository: CitiesBuildingsRepository,
-                private readonly buildingRepository: BuildingsRepository,
-                private readonly playersResourcesRepository: PlayersResourcesRepository,
-                private readonly playersRepository: PlayersRepository,
-                private readonly playersTroopsRepository: PlayersTroopsRepository,
-                private readonly troopsRepository: TroopsRepository) {}
+	constructor(
+		private readonly citiesRepository: CitiesRepository,
+		private readonly citiesBuildingsRepository: CitiesBuildingsRepository,
+		private readonly buildingsRepository: BuildingsRepository,
+		private readonly playersService: PlayersService,
+		private readonly troopsService: TroopsService,
+	) {}
 
-    // public async getCity(query: { cityId?: number }): Promise<City> {
-    //     const city = await this.citiesRepository.getCity(query.cityId);
+	public get(id: number): Promise<City> {
+		return this.citiesRepository.get({ id });
+	}
 
-    //     return city;
-    // }
+	public async createCity(playerId: number): Promise<City> {
+		const currentPlayer = await this.playersService.getPlayer({ id: playerId });
+		if (!currentPlayer) {
+			throw new BadRequestException('player doesnt exist');
+		}
+		if (currentPlayer.game.fase !== Fase.Start) {
+			throw new BadRequestException('u can build cities only on start fase');
+		}
 
-    public async build(query: { cityId: number, buildingId: number }): Promise<CitiesBuildings> {
-        const city = await this.citiesRepository.getCity(query.cityId);
-        if(!city.action) {
-            throw new BadRequestException('city already did its action');
-        }
-        const building = await this.buildingRepository.getBuilding(query.buildingId);
-        if(city.havingSpecialBuilding && building.isSpecial) {
-            throw new BadRequestException('u already have special building');
-        }
-        if(city.hammers < building.hammersPrice) {
-            throw new BadRequestException('not enough hammers');
-        }
-        if(building.isSpecial) {
-            this.citiesRepository.save({ id: city.id, havingSpecialBuilding: true });
-        }
-        return this.citiesBuildingsRepository.save(city.id, building.id);
-    }
+		const citiesCount = (await this.citiesRepository.getList({ playerId })).length;
+		if (citiesCount === currentPlayer.citiesLimit) {
+			throw new BadRequestException('u have too much cities to build new one');
+		}
 
-    public async gainResource(data: GainResourceDto): Promise<PlayersResources> {
-        const city = await this.citiesRepository.getCity(data.cityId);
-        const possibleResources = city.possibleResources;
-        console.log(data, city.possibleResources, typeof possibleResources);
-        if(!possibleResources.find((resource) => resource === data.resource)) {
-            throw new BadRequestException('u dont have this resource in city');
-        }
-        return this.playersResourcesRepository.saveResource(city.playerId, data.resource, true);
-    }
+		if (currentPlayer.game.turn === 1 && citiesCount === 0) {
+			return this.citiesRepository.save({
+				isCapital: true,
+				hammers: Math.floor(Math.random() * 6),
+				tradePoints: Math.floor(Math.random() * 7),
+				culturePoints: Math.floor(Math.random() * 2),
+				possibleResources: [Resource.Silk],
+				player: currentPlayer,
+				defense: 12,
+			});
+		}
+		return this.citiesRepository.save({
+			hammers: Math.floor(Math.random() * 6),
+			tradePoints: Math.floor(Math.random() * 7),
+			culturePoints: Math.floor(Math.random() * 2),
+			possibleResources: [Resource.Iron],
+			player: currentPlayer,
+		});
+	}
 
-    public async gainTroop(data: GainTroopDto): Promise<PlayersTroops> {
-        const city = await this.citiesRepository.getCity(data.cityId);
-        const player = await this.playersRepository.getPlayer({ id: city.playerId });
-        let troopPrice;
-        switch(data.troopType) {
-            case TroopsType.Infantry:
-                troopPrice = 5 + (player.infantryLevel - 1) * 2;
-                break;
-            case TroopsType.Cavalry:
-                troopPrice = 5 + (player.cavalryLevel - 1) * 2;
-                break;
-            case TroopsType.Artillery:
-                troopPrice = 5 + (player.artilleryLevel - 1) * 2;
-                break;
-            case TroopsType.Aviation:
-                if(!player.aviation) {
-                    throw new BadRequestException('u cannot gain aviation');
-                }
-                troopPrice = 12;
-                break;
-        }
-        if(city.hammers < troopPrice) {
-            throw new BadRequestException('not enough hammers');
-        }
-        const possibleTroops = await this.troopsRepository.getTroops(data.troopType);
-        const newTroop = possibleTroops[Math.floor(Math.random() * 3)];
-        return this.playersTroopsRepository.saveTroop(player.id, newTroop.id);
-    }
+	public async createBuilding(id: number, data: CreateBuildingDto): Promise<CitiesBuildings> {
+		const city = await this.citiesRepository.get({ id });
 
-    public save(data: Partial<City>): Promise<City> {
-        return this.citiesRepository.save(data);
-    }
+		if (!city?.action) {
+			throw new BadRequestException('city already did its action');
+		}
+
+		const building = await this.buildingsRepository.get(data.id);
+
+		if (city.havingSpecialBuilding && building.isSpecial) {
+			throw new BadRequestException('u already have special building');
+		}
+
+		if (city.hammers < building.hammersPrice) {
+			throw new BadRequestException('not enough hammers');
+		}
+
+		if (building.isSpecial) {
+			this.citiesRepository.save({
+				id: city.id,
+				havingSpecialBuilding: true,
+			});
+		}
+		return this.citiesBuildingsRepository.save({ cityId: city.id, buildingId: building.id });
+	}
+
+	public async gainResource(id: number, data: GainResourceDto): Promise<PlayersResources> {
+		const city = await this.citiesRepository.get({ id });
+		if (!city?.action) {
+			throw new BadRequestException('city already did its action');
+		}
+
+		if (!city.possibleResources.find((resource) => resource === data.resource)) {
+			throw new BadRequestException('u dont have this resource in city');
+		}
+
+		return this.playersService.savePlayersResources({ playerId: city.player.id, resourceType: data.resource, isOpen: true });
+	}
+
+	public async gainTroop(id: number, data: GainTroopDto): Promise<PlayersTroops> {
+		const city = await this.citiesRepository.get({ id });
+		if (!city?.action) {
+			throw new BadRequestException('city already did its action');
+		}
+		const player = await this.playersService.getPlayer({ id: city.player.id });
+
+		let troopPrice: number;
+		switch (data.troopType) {
+			case TroopsType.Infantry:
+				troopPrice = 5 + (player.infantryLevel - 1) * 2;
+				break;
+			case TroopsType.Cavalry:
+				troopPrice = 5 + (player.cavalryLevel - 1) * 2;
+				break;
+			case TroopsType.Artillery:
+				troopPrice = 5 + (player.artilleryLevel - 1) * 2;
+				break;
+			case TroopsType.Aviation:
+				if (!player.aviation) {
+					throw new BadRequestException('u cannot gain aviation');
+				}
+				troopPrice = 12;
+				break;
+			default: {
+				throw new BadRequestException('wtf');
+			}
+		}
+
+		if (city.hammers < troopPrice) {
+			throw new BadRequestException('not enough hammers');
+		}
+
+		const possibleTroops = await this.troopsService.getList({ type: data.troopType });
+		const newTroop = possibleTroops[Math.floor(Math.random() * 3)];
+
+		return this.playersService.savePlayersTroops({ playerId: player.id, troopId: newTroop.id });
+	}
+
+	public save(data: Partial<City>): Promise<City> {
+		return this.citiesRepository.save(data);
+	}
 }

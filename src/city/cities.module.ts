@@ -1,25 +1,28 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CitiesController } from "./cities.controller";
-import { Building } from './dao/buildings.entity';
-import { City } from './dao/cities.entity';
-import { CitiesBuildings } from './dao/cities-buildings';
+import { CitiesController } from './cities.controller';
+import { Building } from './dao/building.entity';
+import { City } from './dao/city.entity';
+import { CitiesBuildings } from './dao/city-building.entity';
 import { CitiesService } from './services/cities.service';
 import { CitiesRepository } from './repositories/cities.repository';
 import { CitiesBuildingsRepository } from './repositories/cities-buildings.repository';
 import { BuildingsRepository } from './repositories/buildings.repository';
-import { PlayersResources } from 'src/player/dao/players-resources.entity';
-import { PlayersResourcesRepository } from 'src/player/repositories/players-resources.repository';
-import { PlayersTroops } from 'src/player/dao/players-troops.entity';
-import { Troop } from 'src/troops/dao/troops.entity';
-import { PlayersTroopsRepository } from 'src/player/repositories/players-troops.repository';
-import { TroopsRepository } from 'src/troops/repositories/troops.repository';
-import { Player } from 'src/player/dao/players.entity';
-import { PlayersRepository } from 'src/player/repositories/players.repository';
+import { PlayersResources } from 'src/player/dao/player-resource.entity';
+import { PlayersTroops } from 'src/player/dao/player-troop.entity';
+import { Troop } from 'src/troops/dao/troop.entity';
+import { Player } from 'src/player/dao/player.entity';
+import { PlayersModule } from 'src/player/players.module';
+import { TroopsModule } from 'src/troops/troops.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Building, City, CitiesBuildings, PlayersResources, Player, PlayersTroops, Troop])],
-    controllers: [CitiesController],
-    providers: [CitiesService, CitiesRepository, CitiesBuildingsRepository, BuildingsRepository, PlayersResourcesRepository, PlayersRepository, PlayersTroopsRepository, TroopsRepository],
+	imports: [
+		TypeOrmModule.forFeature([Building, City, CitiesBuildings, PlayersResources, Player, PlayersTroops, Troop]),
+		PlayersModule,
+		TroopsModule,
+	],
+	controllers: [CitiesController],
+	exports: [CitiesService],
+	providers: [CitiesService, CitiesRepository, CitiesBuildingsRepository, BuildingsRepository],
 })
 export class CitiesModule {}

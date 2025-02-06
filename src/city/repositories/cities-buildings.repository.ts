@@ -1,34 +1,63 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { CitiesBuildings } from '../dao/cities-buildings';
+import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { CitiesBuildings } from '../dao/city-building.entity';
+
+export type CitiesBuildingsFilter = {
+	cityId: number;
+	buildingId?: number;
+};
 
 @Injectable()
 export class CitiesBuildingsRepository {
-    constructor(
-        @InjectRepository(CitiesBuildings)
-        private readonly repository: Repository<CitiesBuildings>,
-    ) {}
+	constructor(
+		@InjectRepository(CitiesBuildings)
+		private readonly repository: Repository<CitiesBuildings>,
+	) {}
 
-    public async getBuildings(cityId?: number): Promise<CitiesBuildings[]> {
-        const buildings = this.repository.find({
-            where: {
-                city: {
-                    id: cityId
-                }
-            },
-        });
-        return buildings;
-    }
+	public get(filter: CitiesBuildingsFilter): Promise<CitiesBuildings> {
+		return this.repository.findOne({
+			where: this.toWhereOptions(filter),
+			relations: {
+				city: true,
+				building: true,
+			},
+		});
+	}
 
-    public save(cityId: number, buildingId: number): Promise<CitiesBuildings> {
-        return this.repository.save({
-            city: {
-                id: cityId
-            },
-            building: {
-                id: buildingId
-            },
-        });
-    }
+	public getList(filter: CitiesBuildingsFilter): Promise<CitiesBuildings[]> {
+		return this.repository.find({
+			where: this.toWhereOptions(filter),
+			relations: {
+				city: true,
+				building: true,
+			},
+		});
+	}
+
+	public save(data: CitiesBuildingsFilter): Promise<CitiesBuildings> {
+		return this.repository.save({
+			city: {
+				id: data.cityId,
+			},
+			building: {
+				id: data.buildingId,
+			},
+		});
+	}
+
+	public delete(id: number): Promise<DeleteResult> {
+		return this.repository.delete(id);
+	}
+
+	private toWhereOptions(filter: CitiesBuildingsFilter): FindOptionsWhere<CitiesBuildings> {
+		return {
+			city: {
+				id: filter?.cityId,
+			},
+			building: {
+				id: filter?.buildingId,
+			},
+		};
+	}
 }
