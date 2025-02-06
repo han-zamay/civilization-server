@@ -1,22 +1,37 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Troop } from '../dao/troops.entity';
-import { TroopsType } from 'src/enums/troopsType';
+import { FindOptionsWhere, Repository } from 'typeorm';
+import { Troop } from '../dao/troop.entity';
+import { TroopsType } from 'src/enums/troops-type';
+
+export type TroopsFilter = {
+	id?: number;
+	type?: TroopsType;
+};
 
 @Injectable()
 export class TroopsRepository {
-    constructor(
-        @InjectRepository(Troop)
-        private readonly repository: Repository<Troop>,
-    ) {}
+	constructor(
+		@InjectRepository(Troop)
+		private readonly repository: Repository<Troop>,
+	) {}
 
-    public async getTroops(type: TroopsType): Promise<Troop[]> {
-        const troops = this.repository.find({
-            where: {
-                type,
-            },
-        });
-        return troops;
-    }
+	public get(filter: TroopsFilter): Promise<Troop> {
+		return this.repository.findOne({
+			where: this.toWhereOptions(filter),
+		});
+	}
+
+	public getList(filter: TroopsFilter): Promise<Troop[]> {
+		return this.repository.find({
+			where: this.toWhereOptions(filter),
+		});
+	}
+
+	private toWhereOptions(filter?: TroopsFilter): FindOptionsWhere<Troop> {
+		return {
+			id: filter?.id,
+			type: filter?.type,
+		};
+	}
 }

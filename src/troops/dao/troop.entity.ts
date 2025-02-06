@@ -1,13 +1,17 @@
+import { TroopsType } from 'src/enums/troops-type';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Nation {
+export class Troop {
 	@PrimaryGeneratedColumn()
 	id: number;
 
 	@Column()
-	name: string;
+	type: TroopsType;
 
 	@Column()
-	description: string;
+	attack: number;
+
+	@Column()
+	health: number;
 }

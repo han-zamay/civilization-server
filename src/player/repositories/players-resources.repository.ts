@@ -1,41 +1,61 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PlayersResources } from '../dao/players-resources.entity';
+import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { PlayersResources } from '../dao/player-resource.entity';
 import { Resource } from '../../enums/resource';
+
+export type PlayersResourcesFilter = {
+	playerId: number;
+	resourceType?: Resource;
+	isOpen?: boolean;
+};
 
 @Injectable()
 export class PlayersResourcesRepository {
-    constructor(
-        @InjectRepository(PlayersResources)
-        private readonly repository: Repository<PlayersResources>,
-    ) {}
-    public async getPlayersResource(playerId: number, resourceType: Resource): Promise<PlayersResources> {
-        const resource = this.repository.findOne({
-            where: {
-                player: {
-                    id: playerId,
-                },
-                resourceType,
-            },
-            relations: {
-                player: true,
-            }
-        })
-        return resource;
-    }
+	constructor(
+		@InjectRepository(PlayersResources)
+		private readonly repository: Repository<PlayersResources>,
+	) {}
 
-    public saveResource(playerId: number, resourceType: Resource, isOpen: boolean): Promise<PlayersResources> {
-        return this.repository.save({
-            player: {
-                id: playerId,
-            },
-            resourceType,
-            isOpen,
-        });
-    }
+	public get(filter: PlayersResourcesFilter): Promise<PlayersResources> {
+		return this.repository.findOne({
+			where: this.toWhereOptions(filter),
+			relations: {
+				player: true,
+			},
+		});
+	}
 
-    public deleteResource(resourceId: number) {
-        this.repository.delete(resourceId);
-    }
+	public getList(filter: PlayersResourcesFilter): Promise<PlayersResources[]> {
+		return this.repository.find({
+			where: this.toWhereOptions(filter),
+			relations: {
+				player: true,
+			},
+		});
+	}
+
+	public save(data: PlayersResourcesFilter): Promise<PlayersResources> {
+		return this.repository.save({
+			player: {
+				id: data.playerId,
+			},
+			resourceType: data.resourceType,
+			isOpen: data.isOpen,
+		});
+	}
+
+	public delete(id: number): Promise<DeleteResult> {
+		return this.repository.delete(id);
+	}
+
+	private toWhereOptions(filter: PlayersResourcesFilter): FindOptionsWhere<PlayersResources> {
+		return {
+			player: {
+				id: filter?.playerId,
+			},
+			resourceType: filter?.resourceType,
+			isOpen: filter?.isOpen,
+		};
+	}
 }

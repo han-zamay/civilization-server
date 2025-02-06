@@ -1,18 +1,16 @@
-import { Injectable } from "@nestjs/common";
-import { UsersRepository } from "../repositories/users.repository";
-import { User } from "../dao/users.entity";
+import { Injectable } from '@nestjs/common';
+import { UsersRepository } from '../repositories/users.repository';
+import { User } from '../dao/user.entity';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly usersRepository: UsersRepository) {}
+	constructor(private readonly usersRepository: UsersRepository) {}
 
-    public async getUser(query: { userId?: number }): Promise<User> {
-        const user = await this.usersRepository.getUser(query.userId);
+	public get(id: number): Promise<User> {
+		return this.usersRepository.getById(id);
+	}
 
-        return user;
-    }
-
-    public save(data: Partial<User>): Promise<User> {
-        return this.usersRepository.save(data);
-    }
+	public save(data: Partial<User>): Promise<User> {
+		return this.usersRepository.save(data);
+	}
 }

@@ -1,62 +1,16 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { TechnologiesRepository } from "../repositories/technologies.repository";
-import { Technology } from "../dao/technology.entity";
-import { PlayersTechnologiesRepository } from "../../player/repositories/players-technologies.repository";
-import { PlayersTechnologies } from "../../player/dao/players-technologies.entity";
-import { SavePlayersTechnologiesDto } from "../dto/SavePlayersTechnologiesDto";
-import { PlayersRepository } from "src/player/repositories/players.repository";
+import { Injectable } from '@nestjs/common';
+import { TechnologiesRepository, TechologiesFilter } from '../repositories/technologies.repository';
+import { Technology } from '../dao/technology.entity';
 
 @Injectable()
 export class TechnologiesService {
-    constructor(private readonly technologiesRepository: TechnologiesRepository,
-                private readonly playersTechnologiesRepository: PlayersTechnologiesRepository,
-                private readonly playersRepository: PlayersRepository) {}
+	constructor(private readonly technologiesRepository: TechnologiesRepository) {}
 
-    public async getTechnologes(query: {technologyId?: number, level?: number}): Promise<Technology[]> {
-        const technologies = await this.technologiesRepository.getTechnologes(query.technologyId, query.level);
+	public get(filter?: TechologiesFilter): Promise<Technology> {
+		return this.technologiesRepository.get(filter);
+	}
 
-        return technologies;
-    }
-
-    public async getPlayerTechnologies(query: {playerId?: number, technologyId?: number, level?: number}): Promise<PlayersTechnologies[]> {
-        const playerTechnologies = await this.playersTechnologiesRepository.getPlayerTechnologies(query.playerId, query.technologyId, query.level);
-
-        return playerTechnologies;
-    }
-
-    public async isTechnologySetable(playerId: number, technologyId: number, level: number, tradePoints: number): Promise<boolean> {
-        if(tradePoints < level * 5 + 1) {
-            throw new BadRequestException('u dont have enough tradePoints');
-        }
-        const existingTechnology = await this.getPlayerTechnologies({ playerId, technologyId });
-        if(existingTechnology[0] ? true : false) {
-            throw new BadRequestException('u already have this technology');
-        }
-        if(level === 1) {
-            return true;
-        }
-        const thisLevelTech = (await this.getPlayerTechnologies({ playerId, level })).length;
-        const prevLevelTech = (await this.getPlayerTechnologies({ playerId, level: level - 1})).length;
-
-        return prevLevelTech - thisLevelTech >= 2 ? true : false;
-    }
-
-    public async savePlayersTechnologies(data: SavePlayersTechnologiesDto): Promise<PlayersTechnologies> {
-        const currentTechnology = await this.technologiesRepository.getTechnology(data.technologyId);
-        const currentPlayer = await this.playersRepository.getPlayer({ playerId: data.playerId });
-        const isTechnologySetable = await this.isTechnologySetable(data.playerId, data.technologyId, currentTechnology.level, currentPlayer.tradePoints);
-        if(!isTechnologySetable) {
-            throw new BadRequestException('hueta ne rabotaem');
-        };
-        this.playersRepository.save({
-            id: currentPlayer.id,
-            tradePoints: currentTechnology.baseCoin ? currentPlayer.coins + 1 : currentPlayer.coins,
-            coins: currentTechnology.baseCoin ? currentPlayer.coins + 1 : currentPlayer.coins,
-        });
-        return this.playersTechnologiesRepository.save(data);
-    }
-
-    public save(data: Partial<Technology>): Promise<Technology> {
-        return this.technologiesRepository.save(data);
-    }
+	public getList(filter?: TechologiesFilter): Promise<Technology[]> {
+		return this.technologiesRepository.getList(filter);
+	}
 }

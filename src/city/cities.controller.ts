@@ -1,27 +1,34 @@
-import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import { CitiesService } from "./services/cities.service";
-import { CitiesBuildings } from "./dao/cities-buildings";
-import { PlayersResources } from "src/player/dao/players-resources.entity";
-import { GainResourceDto } from "./dto/gainResourceDto";
-import { GainTroopDto } from "./dto/GainTroopDto";
-import { PlayersTroops } from "src/player/dao/players-troops.entity";
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { CitiesService } from './services/cities.service';
+import { CitiesBuildings } from './dao/city-building.entity';
+import { PlayersResources } from 'src/player/dao/player-resource.entity';
+import { GainResourceDto } from './dto/gain-resource.dto';
+import { GainTroopDto } from './dto/gain-troop.dto';
+import { PlayersTroops } from 'src/player/dao/player-troop.entity';
+import { CreateBuildingDto } from './dto/create-building.dto';
+import { City } from './dao/city.entity';
 
 @Controller('cities')
 export class CitiesController {
-    constructor(private readonly citiesService: CitiesService) {}
+	constructor(private readonly citiesService: CitiesService) {}
 
-    @Get()
-    build(@Query() query): Promise<CitiesBuildings> {
-        return this.citiesService.build(query);
-    }
+	@Post(':id')
+	createCity(@Param('id', new ParseIntPipe()) id: number): Promise<City> {
+		return this.citiesService.createCity(id);
+	}
 
-    @Post()
-    gainResource(@Body() body: GainResourceDto): Promise<PlayersResources> {
-        return this.citiesService.gainResource(body);
-    }
+	@Post(':id/create-building')
+	createBuilding(@Param('id', new ParseIntPipe()) id: number, @Body() body: CreateBuildingDto): Promise<CitiesBuildings> {
+		return this.citiesService.createBuilding(id, body);
+	}
 
-    @Post('gainTroop')
-    gainTroop(@Body() body: GainTroopDto): Promise<PlayersTroops> {
-        return this.citiesService.gainTroop(body);
-    }
+	@Post(':id/gain-troop')
+	gainTroop(@Param('id', new ParseIntPipe()) id: number, @Body() body: GainTroopDto): Promise<PlayersTroops> {
+		return this.citiesService.gainTroop(id, body);
+	}
+
+	@Post(':id/gain-resource')
+	gainResource(@Param('id', new ParseIntPipe()) id: number, @Body() body: GainResourceDto): Promise<PlayersResources> {
+		return this.citiesService.gainResource(id, body);
+	}
 }
