@@ -17,4 +17,8 @@ export class BuildingsRepository {
 			},
 		});
 	}
+
+	public getList(): Promise<Building[]> {
+		return this.repository.find();
+	}
 }

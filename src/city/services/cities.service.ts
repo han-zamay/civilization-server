@@ -3,7 +3,6 @@ import { CitiesRepository } from '../repositories/cities.repository';
 import { City } from '../dao/city.entity';
 import { CitiesBuildingsRepository } from '../repositories/cities-buildings.repository';
 import { CitiesBuildings } from '../dao/city-building.entity';
-import { BuildingsRepository } from '../repositories/buildings.repository';
 import { PlayersResources } from 'src/player/dao/player-resource.entity';
 import { GainResourceDto } from '../dto/gain-resource.dto';
 import { PlayersTroops } from 'src/player/dao/player-troop.entity';
@@ -14,15 +13,16 @@ import { TroopsService } from 'src/troops/troops.service';
 import { CreateBuildingDto } from '../dto/create-building.dto';
 import { Fase } from 'src/enums/fase';
 import { Resource } from 'src/enums/resource';
+import { GamesService } from 'src/games/services/games.service';
 
 @Injectable()
 export class CitiesService {
 	constructor(
 		private readonly citiesRepository: CitiesRepository,
 		private readonly citiesBuildingsRepository: CitiesBuildingsRepository,
-		private readonly buildingsRepository: BuildingsRepository,
 		private readonly playersService: PlayersService,
 		private readonly troopsService: TroopsService,
+		private readonly gameService: GamesService,
 	) {}
 
 	public get(id: number): Promise<City> {
@@ -65,27 +65,30 @@ export class CitiesService {
 
 	public async createBuilding(id: number, data: CreateBuildingDto): Promise<CitiesBuildings> {
 		const city = await this.citiesRepository.get({ id });
-
-		if (!city?.action) {
+		if(!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
+		const player = await this.playersService.getPlayer({ id: city.player.id }); // i am in shepki from this chickibriki 
+		const buildingMarket = await this.gameService.getBuildingMarket({ gameId: player.game.id, buildingId: data.id });
+		if(buildingMarket.amount === 0) {
+			throw new BadRequestException('no building on the market');
+		}
 
-		const building = await this.buildingsRepository.get(data.id);
-
-		if (city.havingSpecialBuilding && building.isSpecial) {
+		const building = await this.gameService.getBuilding(data.id);
+		if(city.havingSpecialBuilding && building.isSpecial) {
 			throw new BadRequestException('u already have special building');
 		}
-
-		if (city.hammers < building.hammersPrice) {
+		if(city.hammers < building.hammersPrice) {
 			throw new BadRequestException('not enough hammers');
 		}
-
-		if (building.isSpecial) {
-			this.citiesRepository.save({
+		if(building.isSpecial) {
+			await this.citiesRepository.save({
 				id: city.id,
 				havingSpecialBuilding: true,
 			});
 		}
+		await this.citiesRepository.save({ id: city.id, action: !city.action });
+		await this.gameService.saveBuildingMarket({ id: buildingMarket.id, amount: buildingMarket.amount - 1 });
 		return this.citiesBuildingsRepository.save({ cityId: city.id, buildingId: building.id });
 	}
 
@@ -94,11 +97,16 @@ export class CitiesService {
 		if (!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
-
+		const player = await this.playersService.getPlayer({ id: city.player.id });
+		const resourceMarket = await this.gameService.getResourceMarket({ gameId: player.game.id, resource: data.resource });
+		if(resourceMarket.amount === 0) {
+			throw new BadRequestException('no resource on market');
+		}
 		if (!city.possibleResources.find((resource) => resource === data.resource)) {
 			throw new BadRequestException('u dont have this resource in city');
 		}
-
+		await this.citiesRepository.save({ id: city.id, action: !city.action });
+		await this.gameService.saveResourceMarket({ id: resourceMarket.id, amount: resourceMarket.amount - 1 });
 		return this.playersService.savePlayersResources({ playerId: city.player.id, resourceType: data.resource, isOpen: true });
 	}
 
@@ -137,7 +145,7 @@ export class CitiesService {
 
 		const possibleTroops = await this.troopsService.getList({ type: data.troopType });
 		const newTroop = possibleTroops[Math.floor(Math.random() * 3)];
-
+		await this.citiesRepository.save({ id: city.id, action: !city.action });
 		return this.playersService.savePlayersTroops({ playerId: player.id, troopId: newTroop.id });
 	}
 

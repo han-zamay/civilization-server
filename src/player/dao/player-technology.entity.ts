@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Technology } from '../../technologies/dao/technology.entity';
 import { Player } from 'src/player/dao/player.entity';
 
@@ -12,4 +12,9 @@ export class PlayersTechnologies {
 
 	@ManyToOne(() => Technology)
 	technology: Technology;
+
+	@Column({
+		default: 0,
+	})
+	coinsOnTechnology: number;
 }

@@ -8,7 +8,7 @@ export class Player {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ManyToOne(() => Game)
+	@ManyToOne(() => Game, (game) => game.players)
 	game: Game;
 
 	@ManyToOne(() => User)
@@ -26,6 +26,11 @@ export class Player {
 		default: 0,
 	})
 	tradePoints: number;
+
+	@Column({
+		default: 0,
+	})
+	culturePoints: number;
 
 	@Column({
 		default: 0,
@@ -59,4 +64,9 @@ export class Player {
 		default: 2,
 	})
 	citiesLimit: number;
+
+	@Column({
+		default: 0,
+	})
+	coinsOnList: number;
 }

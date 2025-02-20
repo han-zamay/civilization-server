@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { City } from './city.entity';
-import { Building } from './building.entity';
+import { Building } from '../../games/dao/building.entity';
 
 @Entity({ name: 'city_building' })
 export class CitiesBuildings {
