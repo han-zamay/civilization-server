@@ -39,4 +39,9 @@ export class Building {
 		nullable: true,
 	})
 	description: string;
+
+	@Column({
+		default: 0,
+	})
+	startingAmount: number;
 }

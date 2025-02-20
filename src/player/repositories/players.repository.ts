@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Player } from '../dao/player.entity';
-import { Resource } from '../../enums/resource';
 
 export type PlayerFilter = {
 	id?: number;
@@ -11,7 +10,8 @@ export type PlayerFilter = {
 	playersOrder?: number;
 	coins?: number;
 	tradePoints?: number;
-	resources?: Resource[];
+	culturePoints?: number;
+	coinsOnList?: number;
 };
 
 @Injectable()
@@ -43,17 +43,18 @@ export class PlayersRepository {
 
 	public save(data: PlayerFilter): Promise<Player> {
 		return this.repository.save({
-			id: data.id,
-			game: {
+			id: data?.id,
+			game: data?.gameId ? {
 				id: data.gameId,
-			},
-			user: {
+			} : undefined,
+			user: data?.userId ? {
 				id: data.userId,
-			},
-			playersOrder: data.playersOrder,
-			coins: data.coins,
-			tradePoints: data.tradePoints,
-			resources: data.resources,
+			} : undefined,
+			playersOrder: data?.playersOrder ?? undefined,
+			coins: data?.coins ?? undefined,
+			tradePoints: data?.tradePoints ?? undefined,
+			culturePoints: data?.culturePoints ?? undefined,
+			coinsOnList: data?.coinsOnList ?? undefined,
 		});
 	}
 	private toWhereOptions(filter: PlayerFilter): FindOptionsWhere<Player> {

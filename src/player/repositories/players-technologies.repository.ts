@@ -4,9 +4,11 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { PlayersTechnologies } from '../dao/player-technology.entity';
 
 export type PlayersTechnologiesFilter = {
-	playerId: number;
+	id?: number;
+	playerId?: number;
 	technologyId?: number;
 	level?: number;
+	coinsOnTechnology?: number;
 };
 
 @Injectable()
@@ -38,17 +40,20 @@ export class PlayersTechnologiesRepository {
 
 	public save(data: PlayersTechnologiesFilter): Promise<PlayersTechnologies> {
 		return this.repository.save({
+			id: data.id,
 			player: {
 				id: data.playerId,
 			},
 			technology: {
 				id: data.technologyId,
 			},
+			coinsOnTechnology: data.coinsOnTechnology,
 		});
 	}
 
 	private toWhereOptions(filter: PlayersTechnologiesFilter): FindOptionsWhere<PlayersTechnologies> {
 		return {
+			id: filter?.id,
 			player: {
 				id: filter?.playerId,
 			},

@@ -15,6 +15,9 @@ export class GamesRepository {
 			where: {
 				id,
 			},
+			relations: {
+				players: true,
+			}
 		});
 	}
 

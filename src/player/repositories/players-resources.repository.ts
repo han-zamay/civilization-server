@@ -5,6 +5,7 @@ import { PlayersResources } from '../dao/player-resource.entity';
 import { Resource } from '../../enums/resource';
 
 export type PlayersResourcesFilter = {
+	id?: number;
 	playerId: number;
 	resourceType?: Resource;
 	isOpen?: boolean;
@@ -37,11 +38,12 @@ export class PlayersResourcesRepository {
 
 	public save(data: PlayersResourcesFilter): Promise<PlayersResources> {
 		return this.repository.save({
+			id: data?.id,
 			player: {
-				id: data.playerId,
+				id: data?.playerId,
 			},
-			resourceType: data.resourceType,
-			isOpen: data.isOpen,
+			resourceType: data?.resourceType ?? undefined,
+			isOpen: data?.isOpen ?? undefined,
 		});
 	}
 
@@ -51,6 +53,7 @@ export class PlayersResourcesRepository {
 
 	private toWhereOptions(filter: PlayersResourcesFilter): FindOptionsWhere<PlayersResources> {
 		return {
+			id: filter?.id,
 			player: {
 				id: filter?.playerId,
 			},

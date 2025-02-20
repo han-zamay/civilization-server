@@ -3,4 +3,5 @@ export enum TroopsType {
 	Cavalry = 'cavalry',
 	Artillery = 'artillery',
 	Aviation = 'aviation',
+	Advantage = 'advantage',
 }
