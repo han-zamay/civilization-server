@@ -1,5 +1,6 @@
 import { City } from 'src/city/dao/city.entity';
 import { Game } from 'src/games/dao/game.entity';
+import { Nation } from 'src/nations/dao/nation.entity';
 import { User } from 'src/users/dao/user.entity';
 import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -13,6 +14,9 @@ export class Player {
 
 	@ManyToOne(() => User)
 	user: User;
+
+	@ManyToOne(() => Nation)
+	nation: Nation;
 
 	@Column()
 	playersOrder: number;
@@ -66,7 +70,27 @@ export class Player {
 	citiesLimit: number;
 
 	@Column({
+		default: 2,
+	})
+	stakingLimit: number;
+
+	@Column({
 		default: 0,
 	})
 	coinsOnList: number;
+
+	@Column({
+		default: 2,
+	})
+	travelSpeed: number;
+
+	@Column({
+		default: false,
+	})
+	isCrossingWater: boolean;
+
+	@Column({
+		default: false,
+	})
+	isStopingOnWater: boolean;
 }

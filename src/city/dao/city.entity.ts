@@ -12,6 +12,16 @@ export class City {
 	})
 	isCapital: boolean;
 
+	@Column({
+		default: null,
+	})
+	x: number;
+
+	@Column({
+		default: null,
+	})
+	y: number;
+
 	@Column()
 	hammers: number;
 

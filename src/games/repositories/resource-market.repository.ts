@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Resource } from 'src/enums/resource';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { ResourceMarket } from '../dao/resource-market';
+import { ResourceMarket } from '../dao/resource-market.entity';
 
 export type ResourceMarketFilter = {
 	id?: number;

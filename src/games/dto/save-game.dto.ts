@@ -5,4 +5,9 @@ export class SaveGameDto {
 	@IsNumber(undefined, { each: true })
 	@IsArray()
 	userIds: number[];
+
+	@IsDefined()
+	@IsNumber(undefined, { each: true })
+	@IsArray()
+	nationIds: number[];
 }

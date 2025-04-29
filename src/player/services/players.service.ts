@@ -8,6 +8,8 @@ import { PlayersResources } from '../dao/player-resource.entity';
 import { PlayersTroops } from '../dao/player-troop.entity';
 import { Player } from '../dao/player.entity';
 import { DeleteResult } from 'typeorm';
+import { PlayersFiguresFilter, PlayersFiguresRepository } from '../repositories/players-figures.repository';
+import { PlayersFigure } from '../dao/player-figure.entity';
 
 @Injectable()
 export class PlayersService {
@@ -16,6 +18,7 @@ export class PlayersService {
 		private readonly playersTechnologiesRepository: PlayersTechnologiesRepository,
 		private readonly playersResourcesRepository: PlayersResourcesRepository,
 		private readonly playersTroopsRepository: PlayersTroopsRepository,
+		private readonly playersFiguresRepository: PlayersFiguresRepository,
 	) {}
 
 	public getPlayer(filter?: PlayerFilter): Promise<Player> {
@@ -69,4 +72,20 @@ export class PlayersService {
 	public deletePlayersTroop(id: number): Promise<DeleteResult> {
 		return this.playersTroopsRepository.delete(id);
 	}
+
+	public getPlayersFigure(filter?: PlayersFiguresFilter): Promise<PlayersFigure> {
+		return this.playersFiguresRepository.get(filter);
+	}
+
+	public getPlayersFigures(filter?: PlayersFiguresFilter): Promise<PlayersFigure[]> {
+		return this.playersFiguresRepository.getList(filter);
+	}
+
+	public savePlayersFigure(filter?: PlayersFiguresFilter): Promise<PlayersFigure> {
+		return this.playersFiguresRepository.save(filter);
+	}
+
+	// public deletePlayersFigure(id: number): Promise<DeleteResult> {
+	// 	return this.playersFiguresRepository.delete(id);
+	// }
 }

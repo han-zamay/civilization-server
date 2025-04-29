@@ -5,5 +5,13 @@ export enum Resource {
 	Incense = 'incense',
 	Spy = 'spy',
 	Uranium = 'uranium',
+	Worker = 'friendly worker',
+	Barbarian = 'friendly barbarian',
+	NativeArt3 = '3 culture points',
+	NativeArt6 = '6 culture points',
+	Teacher = 'teacher',
+	Wealth = 'wealth',
+	CityState = 'city-state',
+	GreatPerson = 'great person',
 	Any = 'any',
 }

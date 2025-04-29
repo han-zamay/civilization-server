@@ -28,6 +28,8 @@ export class GamesRepository {
 			fase: data.fase,
 			activePlayerIndex: data.activePlayerIndex,
 			playersCount: data.playersCount,
+			tiles: data.tiles,
+			map: data.map,
 		});
 	}
 }

@@ -13,9 +13,13 @@ import { PlayersTroopsRepository } from './repositories/players-troops.repositor
 import { TechnologiesModule } from 'src/technologies/technologies.module';
 import { PlayersTechnologiesController } from './players-technologies.controller';
 import { PlayersTechnologiesService } from './services/players-technologies.service';
+import { PlayersFigure } from './dao/player-figure.entity';
+import { PlayersFiguresRepository } from './repositories/players-figures.repository';
+import { Nation } from 'src/nations/dao/nation.entity';
+import { NationsModule } from 'src/nations/nations.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Player, PlayersTechnologies, PlayersResources, PlayersTroops]), TechnologiesModule],
+	imports: [TypeOrmModule.forFeature([Player, PlayersTechnologies, PlayersResources, PlayersTroops, PlayersFigure, Nation]), TechnologiesModule, NationsModule],
 	controllers: [PlayersController, PlayersTechnologiesController],
 	exports: [PlayersService, PlayersTechnologiesService],
 	providers: [
@@ -25,6 +29,7 @@ import { PlayersTechnologiesService } from './services/players-technologies.serv
 		PlayersTechnologiesRepository,
 		PlayersResourcesRepository,
 		PlayersTroopsRepository,
+		PlayersFiguresRepository,
 	],
 })
 export class PlayersModule {}
