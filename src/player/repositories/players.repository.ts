@@ -12,6 +12,12 @@ export type PlayerFilter = {
 	tradePoints?: number;
 	culturePoints?: number;
 	coinsOnList?: number;
+	nationId?: number;
+	citiesLimit?: number;
+	stakingLimit?: number;
+	travelSpeed?: number;
+	isCrossingWater?: boolean;
+	isStopingOnWater?: boolean;
 };
 
 @Injectable()
@@ -27,6 +33,7 @@ export class PlayersRepository {
 			relations: {
 				game: true,
 				user: true,
+				nation: true,
 			},
 		});
 	}
@@ -37,6 +44,7 @@ export class PlayersRepository {
 			relations: {
 				game: true,
 				user: true,
+				nation: true,
 			},
 		});
 	}
@@ -50,11 +58,19 @@ export class PlayersRepository {
 			user: data?.userId ? {
 				id: data.userId,
 			} : undefined,
+			nation: data?.nationId ? {
+				id: data.nationId,
+			} : undefined,
 			playersOrder: data?.playersOrder ?? undefined,
 			coins: data?.coins ?? undefined,
 			tradePoints: data?.tradePoints ?? undefined,
 			culturePoints: data?.culturePoints ?? undefined,
 			coinsOnList: data?.coinsOnList ?? undefined,
+			citiesLimit: data?.citiesLimit ?? undefined,
+			stakingLimit: data?.stakingLimit ?? undefined,
+			travelSpeed: data?.travelSpeed ?? undefined,
+			isCrossingWater: data?.isCrossingWater ?? undefined,
+			isStopingOnWater: data?.isStopingOnWater ?? undefined,
 		});
 	}
 	private toWhereOptions(filter: PlayerFilter): FindOptionsWhere<Player> {
@@ -65,6 +81,9 @@ export class PlayersRepository {
 			},
 			user: {
 				id: filter?.userId,
+			},
+			nation: {
+				id: filter?.nationId,
 			},
 			playersOrder: filter?.playersOrder,
 			coins: filter?.coins,

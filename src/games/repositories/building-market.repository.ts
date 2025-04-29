@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import { BuildingMarket } from '../dao/building-market';
+import { BuildingMarket } from '../dao/building-market.entity';
 
 export type BuildingMarketFilter = {
 	id?: number;

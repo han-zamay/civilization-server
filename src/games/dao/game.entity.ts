@@ -27,6 +27,18 @@ export class Game {
 	})
 	playersCount: number;
 
+	@Column({
+		type: 'jsonb',
+		nullable: true,
+	})
+	tiles: number[][];
+
+	@Column({
+		type: 'jsonb',
+		nullable: true,
+	})
+	map: number[][]; // cellIds, null - tile closed, -1 - blocked cell(for 2-3 players)
+
 	@OneToMany(() => Player, (player) => player.game)
 	players: Player[];
 }

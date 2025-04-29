@@ -19,8 +19,16 @@ import { PlayersTroops } from './player/dao/player-troop.entity';
 import { Battle } from './battles/dao/battle.entity';
 import { BattleTroops } from './battles/dao/battle-troops.entity';
 import { BattlesModule } from './battles/batttles.module';
-import { BuildingMarket } from './games/dao/building-market';
-import { ResourceMarket } from './games/dao/resource-market';
+import { BuildingMarket } from './games/dao/building-market.entity';
+import { ResourceMarket } from './games/dao/resource-market.entity';
+import { Cell } from './map/dao/cell.entity';
+import { CellTemplate } from './map/dao/cell-template.entity';
+import { TileTemplate } from './map/dao/tile-template.entity';
+import { MapModule } from './map/map.module';
+import { NationsModule } from './nations/nations.module';
+import { Nation } from './nations/dao/nation.entity';
+import { PlayersFigure } from './player/dao/player-figure.entity';
+import { Loot } from './games/dao/loot.entity';
 
 @Module({
 	imports: [
@@ -30,8 +38,8 @@ import { ResourceMarket } from './games/dao/resource-market';
 			port: 5432,
 			username: 'postgres',
 			password: '123123',
-			database: 'postgres',
-			entities: [Game, User, Technology, PlayersTechnologies, Player, PlayersResources, City, Building, CitiesBuildings, Troop, PlayersTroops, Battle, BattleTroops, BuildingMarket, ResourceMarket],
+			database: 'civilization',
+			entities: [Game, User, Technology, PlayersTechnologies, Player, PlayersResources, City, Building, CitiesBuildings, Troop, PlayersTroops, Battle, BattleTroops, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, Nation, PlayersFigure, Loot],
 			synchronize: true,
 		}),
 		GamesModule,
@@ -40,6 +48,8 @@ import { ResourceMarket } from './games/dao/resource-market';
 		CitiesModule,
 		PlayersModule,
 		BattlesModule,
+		MapModule,
+		NationsModule,
 	],
 })
 export class AppModule {}

@@ -19,7 +19,9 @@ export class CitiesRepository {
 		return this.repository.findOne({
 			where: this.toWhereOptions(filter),
 			relations: {
-				player: true,
+				player: {
+					game: true,
+				},
 			},
 		});
 	}
@@ -37,6 +39,8 @@ export class CitiesRepository {
 		return this.repository.save({
 			id: data.id,
 			isCapital: data.isCapital,
+			x: data.x,
+			y: data.y,
 			hammers: data.hammers,
 			tradePoints: data.tradePoints,
 			culturePoints: data.culturePoints,

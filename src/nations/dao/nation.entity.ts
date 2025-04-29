@@ -9,5 +9,10 @@ export class Nation {
 	name: string;
 
 	@Column()
+	tileId: number;
+
+	@Column({
+		nullable: true,
+	})
 	description: string;
 }
