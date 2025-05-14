@@ -69,4 +69,14 @@ export class City {
 		default: false,
 	})
 	havingWalls: boolean;
+
+	@Column({
+		default: false,
+	})
+	fortificationMarker: boolean;
+
+	@Column({
+		default: false,
+	})
+	caravanMarker: boolean;
 }

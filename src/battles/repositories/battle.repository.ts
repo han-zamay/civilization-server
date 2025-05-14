@@ -11,6 +11,7 @@ export type BattleFilter = {
 	trophies?: number;
 	winnerId?: number;
 	loserId?: number;
+	cellId?: number;
 };
 
 @Injectable()
@@ -26,6 +27,7 @@ export class BattleRepository {
 			relations: {
 				attackPlayer: true,
 				defensePlayer: true,
+				cell: true,
 			}
 		});
 	}
@@ -36,6 +38,7 @@ export class BattleRepository {
 			relations: {
 				attackPlayer: true,
 				defensePlayer: true,
+				cell: true,
 			}
 		});
 	}
@@ -48,6 +51,9 @@ export class BattleRepository {
 			},
 			defensePlayer: {
 				id: filter?.defensePlayerId,
+			},
+			cell: {
+				id: filter?.cellId,
 			},
             isAttackTurn: filter?.isAttackTurn,
 			trophies: filter?.trophies,
@@ -64,6 +70,9 @@ export class BattleRepository {
 			},
 			defensePlayer: {
 				id: filter?.defensePlayerId,
+			},
+			cell: {
+				id: filter?.cellId,
 			},
             isAttackTurn: filter?.isAttackTurn,
 		};

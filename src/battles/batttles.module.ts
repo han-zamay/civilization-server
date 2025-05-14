@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { GamesModule } from "src/games/games.module";
 import { BattlesController } from "./battles.controller";
@@ -16,15 +16,19 @@ import { Battle } from "./dao/battle.entity";
 import { BattleTroops } from "./dao/battle-troops.entity";
 import { BattleRepository } from "./repositories/battle.repository";
 import { BattleTroopsRepository } from "./repositories/battle-troops.repository";
+import { MapModule } from "src/map/map.module";
+import { Cell } from "src/map/dao/cell.entity";
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([PlayersResources, Player, PlayersTroops, Troop, Game, City, Battle, BattleTroops]),
+		TypeOrmModule.forFeature([PlayersResources, Player, PlayersTroops, Troop, Game, City, Battle, BattleTroops, Cell]),
 		PlayersModule,
 		TroopsModule,
-        GamesModule,
-        CitiesModule
+        CitiesModule,
+		MapModule,
+		forwardRef(() => GamesModule),
 	],
+	exports: [BattlesService],
 	controllers: [BattlesController],
 	providers: [BattlesService, BattleRepository, BattleTroopsRepository],
 })

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CitiesController } from './cities.controller';
 import { Building } from '../games/dao/building.entity';
@@ -26,7 +26,7 @@ import { MapModule } from 'src/map/map.module';
 		TypeOrmModule.forFeature([Building, City, CitiesBuildings, PlayersResources, Player, PlayersTroops, Troop, BuildingMarket, ResourceMarket, PlayersFigure, Cell]),
 		PlayersModule,
 		TroopsModule,
-		GamesModule,
+		forwardRef(() => GamesModule),
 		MapModule
 	],
 	controllers: [CitiesController],

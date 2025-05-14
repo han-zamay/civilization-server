@@ -28,7 +28,9 @@ export class PlayersFiguresRepository {
 				player: {
 					game: true,
 				},
-				cell: true,
+				cell: {
+					figures: true,
+				},
 			},
 		});
 	}
@@ -40,7 +42,9 @@ export class PlayersFiguresRepository {
 				player: {
 					game: true,
 				},
-				cell: true,
+				cell: {
+					figures: true,
+				},
 			},
 		});
 	}
