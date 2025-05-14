@@ -5,11 +5,25 @@ import { SaveGameDto } from './dto/save-game.dto';
 import { Player } from '../player/dao/player.entity';
 import { OpenTileDto } from './dto/open-tile.dto';
 import { FigureMoveDto } from './dto/figure-move.dto';
-import { PlayersFigure } from 'src/player/dao/player-figure.entity';
+import { figureMoveResponse, MovementService } from './services/movement.service';
 
 @Controller('games')
 export class GamesController {
-	constructor(private readonly gamesService: GamesService) {}
+	constructor(
+		private readonly gamesService: GamesService,
+		private readonly movementService: MovementService,
+	) {}
+
+	@Post('/figure-move')
+	figureMove(@Body() body: FigureMoveDto): Promise<figureMoveResponse> {
+		return this.movementService.figureMove(body);
+	}
+
+	@Get('/validate-path')
+	async validatePath(@Body() body: FigureMoveDto): Promise<boolean> {
+		const isPathCorrect = await this.movementService.isPathCorrect(body);
+		return isPathCorrect.response;
+	}
 
 	@Get(':id')
 	get(@Param('id', new ParseIntPipe()) id: number): Promise<Game> {
@@ -29,11 +43,6 @@ export class GamesController {
 	@Post(':id/open-tile')
 	openTile(@Param('id', new ParseIntPipe()) id: number, @Body() body: OpenTileDto): Promise<Game> {
 		return this.gamesService.openClosedTile(id, body);
-	}
-
-	@Post('/figure-move')
-	figureMove(@Body() body: FigureMoveDto): Promise<PlayersFigure[]> {
-		return this.gamesService.figureMove(body);
 	}
 
 	// @Get('changeFase')

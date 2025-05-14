@@ -12,16 +12,15 @@ import { PlayersService } from 'src/player/services/players.service';
 import { TroopsService } from 'src/troops/troops.service';
 import { CreateBuildingDto } from '../dto/create-building.dto';
 import { Fase } from 'src/enums/fase';
-import { Resource } from 'src/enums/resource';
-import { GamesService } from 'src/games/services/games.service';
 import { PlayersFigure } from 'src/player/dao/player-figure.entity';
 import { CreateFigureDto } from '../dto/create-figure.dto';
 import { MapService } from 'src/map/services/map.service';
-import { areCellsAdjust, isCityOutskirt } from 'src/utils/areCellsAdjust';
+import { isCityOutskirt } from 'src/utils/areCellsAdjust';
 import { CreateCapitalDto } from '../dto/create-capital.dto';
 import { Player } from 'src/player/dao/player.entity';
 import { Landscape } from 'src/enums/landscape';
 import { Cell } from 'src/map/dao/cell.entity';
+import { MarketService } from 'src/games/services/market.service';
 
 export type CreateCityResponse = {
 	city: City;
@@ -35,12 +34,16 @@ export class CitiesService {
 		private readonly citiesBuildingsRepository: CitiesBuildingsRepository,
 		private readonly playersService: PlayersService,
 		private readonly troopsService: TroopsService,
-		private readonly gameService: GamesService,
+		private readonly marketService: MarketService,
 		private readonly mapService: MapService,
 	) {}
 
 	public get(id: number): Promise<City> {
 		return this.citiesRepository.get({ id });
+	}
+
+	public getCityBuildings(cityId: number): Promise<CitiesBuildings[]> {
+		return this.citiesBuildingsRepository.getList({ cityId });
 	}
 
 	public async createCapital(playerId: number, coordinates: CreateCapitalDto): Promise<CreateCityResponse> {
@@ -88,12 +91,12 @@ export class CitiesService {
 		if(!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
-		const building = await this.gameService.getBuilding(data.id);
+		const building = await this.marketService.getBuilding(data.id);
 		if(!building) {
 			throw new BadRequestException('no such building');
 		}
 
-		const buildingMarket = await this.gameService.getBuildingMarket({ gameId: city.player.game.id, buildingId: building.id });
+		const buildingMarket = await this.marketService.getBuildingMarket({ gameId: city.player.game.id, buildingId: building.id });
 		if(buildingMarket.amount === 0) {
 			throw new BadRequestException('no building on the market');
 		}
@@ -111,7 +114,7 @@ export class CitiesService {
 			});
 		}
 		await this.citiesRepository.save({ id: city.id, action: false });
-		await this.gameService.saveBuildingMarket({ id: buildingMarket.id, amount: buildingMarket.amount - 1 });
+		await this.marketService.saveBuildingMarket({ id: buildingMarket.id, amount: buildingMarket.amount - 1 });
 		return this.citiesBuildingsRepository.save({ cityId: city.id, buildingId: building.id });
 	}
 
@@ -134,7 +137,7 @@ export class CitiesService {
 			throw new BadRequestException('u cant build figure here');
 		}
 		const cell = await this.mapService.getCell({ id: city.player.game.map[data.y][data.x] });
-		if(cell.armyCount + cell.scoutCount >= figure.player.stakingLimit) {
+		if(cell.figures.length >= figure.player.stakingLimit) {
 			throw new BadRequestException('raise yours stacking limit first!');
 		}
 
@@ -144,8 +147,7 @@ export class CitiesService {
 
 		await this.mapService.saveCell({
 			id: cell.id,
-			scoutCount: figure.isArmy ? cell.scoutCount : cell.scoutCount + 1,
-			armyCount: figure.isArmy ? cell.armyCount + 1 : cell.armyCount,
+			figures: [...cell.figures, figure ],
 			playerId: figure.player.id,
 		});
 		await this.citiesRepository.save({ id: city.id, action: false });
@@ -157,7 +159,7 @@ export class CitiesService {
 		if (!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
-		const resourceMarket = await this.gameService.getResourceMarket({ gameId: city.player.game.id, resource: data.resource });
+		const resourceMarket = await this.marketService.getResourceMarket({ gameId: city.player.game.id, resource: data.resource });
 		if(resourceMarket.amount === 0) {
 			throw new BadRequestException('no resource on market');
 		}
@@ -165,7 +167,7 @@ export class CitiesService {
 			throw new BadRequestException('u dont have this resource in city');
 		}
 		await this.citiesRepository.save({ id: city.id, action: false });
-		await this.gameService.saveResourceMarket({ id: resourceMarket.id, amount: resourceMarket.amount - 1 });
+		await this.marketService.saveResourceMarket({ id: resourceMarket.id, amount: resourceMarket.amount - 1 });
 		return this.playersService.savePlayersResources({ playerId: city.player.id, resourceType: data.resource, isOpen: true });
 	}
 

@@ -52,6 +52,8 @@ export class CitiesRepository {
 			player: data.player,
 			defense: data.defense,
 			havingWalls: data.havingWalls,
+			fortificationMarker: data.fortificationMarker,
+			caravanMarker: data.caravanMarker,
 		});
 	}
 

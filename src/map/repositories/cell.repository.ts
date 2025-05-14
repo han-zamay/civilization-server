@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { Cell } from '../dao/cell.entity';
 import { Relict } from 'src/enums/relict';
+import { PlayersFigure } from 'src/player/dao/player-figure.entity';
 
 export type CellFilter = {
     id?: number;
@@ -16,6 +17,7 @@ export type CellFilter = {
     relict?: Relict;
     x?: number;
     y?: number;
+    figures?: PlayersFigure[];
 };
 
 @Injectable()
@@ -34,6 +36,7 @@ export class CellRepository {
                 city: true,
                 loot: true,
                 game: true,
+                figures: true,
             }
 		});
 	}
@@ -47,6 +50,7 @@ export class CellRepository {
                 city: true,
                 loot: true,
                 game: true,
+                figures: true,
             }
 		});
 	}
@@ -69,8 +73,7 @@ export class CellRepository {
             game: data?.gameId ? {
 				id: data.gameId,
 			} : undefined,
-            armyCount: data?.armyCount,
-            scoutCount: data?.scoutCount,
+            figures: data?.figures,
             relict: data?.relict,
             x: data?.x,
             y: data?.y,

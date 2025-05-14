@@ -1,3 +1,4 @@
+import { Cell } from 'src/map/dao/cell.entity';
 import { Player } from 'src/player/dao/player.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -11,6 +12,9 @@ export class Battle {
 
 	@ManyToOne(() => Player)
 	defensePlayer: Player;
+
+	@ManyToOne(() => Cell)
+	cell: Cell;
 
 	@Column({
 		default: false,
@@ -28,7 +32,7 @@ export class Battle {
 	loserId: number;
 
 	@Column({
-		default: 1,
+		default: 0,
 	})
 	trophies: number;
 }

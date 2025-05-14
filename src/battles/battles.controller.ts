@@ -10,10 +10,10 @@ import { GainTwoTrophiesDto } from "./dto/gain-two-trophies.dto";
 export class BattlesController {
 	constructor(private readonly battlesService: BattlesService) {}
 
-	@Post(':id/start-battle')
-	startBattle(@Param('id', new ParseIntPipe()) id: number, @Body() body: StartBattleDto): Promise<Battle> {
-		return this.battlesService.startBattle(id, body);
-	}
+	// @Post(':id/start-battle')
+	// startBattle(@Param('id', new ParseIntPipe()) id: number, @Body() body: StartBattleDto): Promise<Battle> {
+	// 	return this.battlesService.startBattle(id, body);
+	// }
 
 	@Post(':id/make-turn')
 	makeTurn(@Param('id', new ParseIntPipe()) id: number, @Body() body: MakeTurnDto): Promise<MakeTurnResponse> {

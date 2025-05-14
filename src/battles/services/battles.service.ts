@@ -1,14 +1,11 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
-import { GamesService } from "src/games/services/games.service";
+import { BadRequestException, forwardRef, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { PlayersService } from "src/player/services/players.service";
-import { TroopsService } from "src/troops/troops.service";
 import { BattleRepository } from "../repositories/battle.repository";
 import { BattleTroopsRepository } from "../repositories/battle-troops.repository";
 import { BattleTroops } from "../dao/battle-troops.entity";
 import { Battle } from "../dao/battle.entity";
 import { TroopsType } from "src/enums/troops-type";
 import { PlayersTroops } from "src/player/dao/player-troop.entity";
-import { StartBattleDto } from "../dto/start-battle-dto";
 import { MakeTurnDto } from "../dto/make-turn-dto";
 import { Player } from "src/player/dao/player.entity";
 import { GainOneTrophyDto } from "../dto/gain-one-trophy.dto";
@@ -16,10 +13,16 @@ import { PlayersResources } from "src/player/dao/player-resource.entity";
 import { GainTwoTrophiesDto } from "../dto/gain-two-trophies.dto";
 import { PlayersTechnologiesService } from "src/player/services/players-technologies.service";
 import { PlayersTechnologies } from "src/player/dao/player-technology.entity";
+import { MapService } from "src/map/services/map.service";
+import { CitiesService } from "src/city/services/cities.service";
+import { PlayersFigure } from "src/player/dao/player-figure.entity";
+import { Cell } from "src/map/dao/cell.entity";
+import { MovementService } from "src/games/services/movement.service";
+import { MarketService } from "src/games/services/market.service";
 
 export type MakeTurnResponse = { 
 	troop: BattleTroops,
-	winnerId?: number, 
+	battle?: Battle, 
 }
 
 export type GainOneTrophyResponse = {
@@ -37,40 +40,54 @@ export class BattlesService {
 	constructor(
 		private readonly battleRepository: BattleRepository,
 		private readonly battleTroopsRepository: BattleTroopsRepository,
-		private readonly gamesService: GamesService,
 		private readonly playersService: PlayersService,
 		private readonly playersTechnologiesService: PlayersTechnologiesService,
-		private readonly troopsService: TroopsService,
+		private readonly mapService: MapService,
+		private readonly citiesService: CitiesService,
+		private readonly marketService: MarketService,
+		@Inject(forwardRef(() => MovementService))
+		private readonly movementService: MovementService,
 	) {}
 	
-	public async startBattle(attackPlayerId: number, data: StartBattleDto): Promise<Battle> {
+	public async fightOpponent(attackFigures: PlayersFigure[], cell: Cell): Promise<Battle> {
+		const attackPlayerId = attackFigures[0].player.id;
+		const defensePlayerId = cell.player.id;
+		const defenseFigures = await this.playersService.getPlayersFigures({ playerId: defensePlayerId, cellId: cell.id });
+		const defenseArmies = defenseFigures.filter((figure) => figure.isArmy);
+		if(defenseArmies.length === 0 && !cell.city) {
+			const battleToSave = await this.battleRepository.save({ attackPlayerId, defensePlayerId, winnerId: attackPlayerId, loserId: defensePlayerId, cellId: cell.id });
+			return this.destroyingComponents(battleToSave, 0);
+		}
+		let defenseLimit = cell.city ? 6 : 1 + defenseArmies.length * 2;
+
 		const attackTroops = await this.playersService.getPlayersTroops({ playerId: attackPlayerId });
-		const defenseTroops = await this.playersService.getPlayersTroops({ playerId: data.id });
+		const defenseTroops = await this.playersService.getPlayersTroops({ playerId: defensePlayerId });
 
 		attackTroops.sort(() => Math.floor(Math.random() * 3 - 1));
 		defenseTroops.sort(() => Math.floor(Math.random() * 3 - 1));
 
-		const attackTroopsToSave = attackTroops.slice(0, 3);
-		const defenseTroopsToSave = defenseTroops.slice(0, 3);
+		const attackTroopsToSave = attackTroops.slice(0, 1 + attackFigures.length * 2);
+		const defenseTroopsToSave = defenseTroops.slice(0, defenseLimit);
 
-		const battle = await this.battleRepository.save({ attackPlayerId, defensePlayerId: data.id });
-		const attackAdvantage = (await this.playersService.getPlayer({ id: battle.attackPlayer.id })).advantage;
-		const defenseAdvantage = (await this.playersService.getPlayer({ id: battle.defensePlayer.id })).advantage;
-		if(attackAdvantage > defenseAdvantage) {
-			this.battleTroopsRepository.save({
+		const battle = await this.battleRepository.save({ attackPlayerId, defensePlayerId, cellId: cell.id, isAttackTurn: cell.city?.havingWalls });
+		const attackAdvantage = (await this.playersService.getPlayer({ id: attackPlayerId })).advantage;
+		const defenseAdvantage = (await this.playersService.getPlayer({ id: defensePlayerId })).advantage;
+		const defenseBonus = cell.city?.fortificationMarker ? cell.city.defense + 2 : cell.city?.defense;
+		if(attackAdvantage > defenseAdvantage + defenseBonus ) {
+			await this.battleTroopsRepository.save({
 				troopType: TroopsType.Advantage,
-				attack: attackAdvantage - defenseAdvantage,
-				health: attackAdvantage - defenseAdvantage,
-				playerId: battle.attackPlayer.id,
+				attack: attackAdvantage - defenseAdvantage - defenseBonus,
+				health: attackAdvantage - defenseAdvantage - defenseBonus,
+				playerId: attackPlayerId,
 				battleId: battle.id,
 			});
 		}
-		if(defenseAdvantage > attackAdvantage) {
-			this.battleTroopsRepository.save({
+		if(defenseAdvantage + defenseBonus > attackAdvantage) {
+			await this.battleTroopsRepository.save({
 				troopType: TroopsType.Advantage,
-				attack: defenseAdvantage - attackAdvantage,
-				health: defenseAdvantage - attackAdvantage,
-				playerId: battle.defensePlayer.id,
+				attack: defenseAdvantage + defenseBonus - attackAdvantage,
+				health: defenseAdvantage + defenseBonus - attackAdvantage,
+				playerId: defensePlayerId,
 				battleId: battle.id,
 			});
 		}
@@ -84,17 +101,79 @@ export class BattlesService {
 			}),
 		]);
 
+		const attackUnits = await this.battleTroopsRepository.getList({ battleId: battle.id, playerId: attackPlayerId });
+		if(attackUnits.length === 0) {
+			const battleToSave = await this.battleRepository.save({ id: battle.id, winnerId: defensePlayerId, loserId: attackPlayerId });
+			return this.destroyingComponents(battleToSave, 0);
+		}
+		const defenseUnits = await this.battleTroopsRepository.getList({ battleId: battle.id, playerId: cell.player.id });
+		if(defenseUnits.length === 0) {
+			const battleToSave = await this.battleRepository.save({ id: battle.id, winnerId: attackPlayerId, loserId: defensePlayerId });
+			return this.destroyingComponents(battleToSave, 0);
+		}
+
 		return battle;
 	}
 
+	public async fightVillage(figures: PlayersFigure[], cell: Cell): Promise<Battle> {
+		const player = figures[0].player;
+		const battle = await this.battleRepository.save({ attackPlayerId: player.id, defensePlayerId: null, cellId: cell.id });
+		if(player.advantage > 0) {
+			await this.battleTroopsRepository.save({
+				troopType: TroopsType.Advantage,
+				attack: player.advantage,
+				health: player.advantage,
+				playerId: player.id,
+				battleId: battle.id,
+			});
+		}
+		const playersTroops = await this.playersService.getPlayersTroops({ playerId: player.id });
+		// const villageTroops = await this.troopsService.getList();
+
+		playersTroops.sort(() => Math.floor(Math.random() * 3 - 1));
+		// villageTroops.sort(() => Math.floor(Math.random() * 3 - 1));
+
+		const playersTroopsToSave = playersTroops.slice(0, 1 + figures.length * 2);
+		// const villageTroopsToSave = villageTroops.slice(0, 3);
+
+		await Promise.all([
+			...playersTroopsToSave.map(troop => {
+				this.saveBattleTroop(troop, battle.id);
+			}),
+			this.battleTroopsRepository.save({
+				troopType: TroopsType.Infantry,
+				attack: Math.floor(Math.random() * 3 + 1),
+				health: Math.floor(Math.random() * 3 + 1),
+				playerId: null,
+				battleId: battle.id,
+			}),
+			this.battleTroopsRepository.save({
+				troopType: TroopsType.Cavalry,
+				attack: Math.floor(Math.random() * 3 + 1),
+				health: Math.floor(Math.random() * 3 + 1),
+				playerId: null,
+				battleId: battle.id,
+			}),
+			this.battleTroopsRepository.save({
+				troopType: TroopsType.Artillery,
+				attack: Math.floor(Math.random() * 3 + 1),
+				health: Math.floor(Math.random() * 3 + 1),
+				playerId: null,
+				battleId: battle.id,
+			}),
+		]);
+
+		return battle;
+	}
+	
     public async makeTurn(battleId: number, data: MakeTurnDto): Promise<MakeTurnResponse> {
         const currentBattle = await this.battleRepository.get({ id: battleId });
 		if(!currentBattle) {
-			throw new BadRequestException('battle doesnt exist');
+			throw new NotFoundException('battle doesnt exist');
 		}
 		const currentTroop = await this.battleTroopsRepository.get({ id: data.battleTroopId });
 		if(!currentTroop || data.placement < 0 || currentBattle.id !== currentTroop.battle.id) {
-			throw new BadRequestException('kavo???');
+			throw new NotFoundException('kavo???');
 		}
 		if(currentBattle.isAttackTurn && currentBattle.attackPlayer.id !== currentTroop.player.id) {
 			throw new BadRequestException('sho vi tut perform?');
@@ -108,24 +187,22 @@ export class BattlesService {
 		if(allyTroop) {
 			throw new BadRequestException('ti huilusha');
 		}
-		await this.battleTroopsRepository.save({
+		const fightingTroop = await this.battleTroopsRepository.save({
 			id: currentTroop.id,
 			placement: data.placement,
 		});
 
-		const fightingTroop = await this.battleTroopsRepository.get({ id: currentTroop.id });
-		const opponentTroop = tropsByPlacement.find((troop) => troop.player.id !== currentTroop.player.id);
+		const opponentTroop = tropsByPlacement.find((troop) => troop.player.id !== fightingTroop.player.id);
 		if(opponentTroop) {
 			await this.fight(fightingTroop, opponentTroop);
 		}
 
 		const allTroops = await this.battleTroopsRepository.getList({ battleId, placement: -1 });
-
-		const troopToSave = await this.battleTroopsRepository.get({ id: fightingTroop.id });
+		const troopToSave = await this.battleTroopsRepository.get({ id: currentTroop.id });
 		if(!allTroops[0]) {
 			return {
 				troop: troopToSave,
-				winnerId: await this.getWinnerId(currentBattle)[0],
+				battle: await this.finishBattle(currentBattle),
 			}
 		}
 		const passivePlayerBattleTroops = await this.battleTroopsRepository.getList({ battleId: currentBattle.id, playerId: currentBattle.isAttackTurn ? currentBattle.defensePlayer.id : currentBattle.attackPlayer.id, placement: -1 });
@@ -407,7 +484,7 @@ export class BattlesService {
 		}
 	}
 
-	private async getWinnerId(battle: Battle): Promise<number> {
+	private async finishBattle(battle: Battle): Promise<Battle> {
 
 		const attackTroops = await this.battleTroopsRepository.getList({ playerId: battle.attackPlayer.id, battleId: battle.id });
 		const defenseTroops = await this.battleTroopsRepository.getList({ playerId: battle.defensePlayer.id, battleId: battle.id });
@@ -415,8 +492,8 @@ export class BattlesService {
 		const aliveAttackTroops = attackTroops.filter((troop) => troop.placement >= 0);
 		const aliveDefenseTroops = defenseTroops.filter((troop) => troop.placement >= 0);
 
-		const attackHealth = aliveAttackTroops.reduce((accumulator, currentTroop) => { return accumulator + currentTroop.health - currentTroop.damage }, 0);
-		const defenseHealth = aliveDefenseTroops.reduce((accumulator, currentTroop) => { return accumulator + currentTroop.health - currentTroop.damage }, 0);
+		const attackHealth = aliveAttackTroops.reduce((accumulator, currentTroop) => accumulator + currentTroop.health - currentTroop.damage, 0);
+		const defenseHealth = aliveDefenseTroops.reduce((accumulator, currentTroop) =>  accumulator + currentTroop.health - currentTroop.damage, 0);
 
 		const finishedBattle = await this.battleRepository.save({
 			id: battle.id,
@@ -425,8 +502,48 @@ export class BattlesService {
 		});
 
 		const deadTroops = await this.battleTroopsRepository.getList({ battleId: finishedBattle.id, placement: -2 });
-		await Promise.all(deadTroops.map(deadTroop => deadTroop.troopId && this.playersService.deletePlayersTroop(deadTroop.troopId)));
+		await Promise.all(deadTroops.map(deadTroop => deadTroop.troopId && deadTroop.player?.id && this.playersService.deletePlayersTroop(deadTroop.troopId)));
 
-		return finishedBattle.winnerId;
+		const winnerLoss = deadTroops.filter((troop) => troop.player.id === finishedBattle.winnerId).length;
+		return this.destroyingComponents(finishedBattle, winnerLoss);
+	}
+
+	private async destroyingComponents(battle: Battle, winnerLoss: number): Promise<Battle> {
+		const fightingCell = await this.mapService.getCell({ id: battle.cell.id });
+
+		const winnerFigures = fightingCell.figures.filter((figure) => figure.player.id === battle.winnerId);
+		const loserFigures = fightingCell.figures.filter((figure) => figure.player.id === battle.loserId);
+
+		const remainingCount = winnerFigures.length - winnerLoss;
+		const remainingFigures = winnerFigures.slice(0, remainingCount > 0 ? remainingCount : 1);
+		await this.mapService.saveCell({ id: fightingCell.id, playerId: battle.winnerId, figures: remainingFigures });
+
+		const deadFigures = [...winnerFigures.slice(remainingCount > 0 ? remainingCount : 1), ...loserFigures];
+		await Promise.all(deadFigures.map((figure) => this.playersService.savePlayersFigure({ id: figure.id, cellId: null, x: null, y: null })));
+
+		if(battle.loserId === null) {
+			const cell = await this.movementService.exploreHutOrVillage(fightingCell, battle.winnerId);
+			return battle;
+		}
+
+		if(battle.winnerId === battle.attackPlayer.id && fightingCell.city) {
+			if(fightingCell.city.isCapital) {
+				throw new BadRequestException('u are winning son');
+			}
+			if(fightingCell.city) {
+				const cityCells = await this.mapService.getCells({ cityId: fightingCell.city.id });
+				await Promise.all(cityCells.map((cell) => this.mapService.saveCell({ id: cell.id, cityId: null })));
+
+				const buildingsMarket = await this.marketService.getBuildingMarketList({ gameId: fightingCell.game.id });
+				const cityBuildings = await this.citiesService.getCityBuildings(fightingCell.city.id);
+				await Promise.all(cityBuildings.map((building) => {
+					const buildingMarket = buildingsMarket.find((currentBuilding) => building.building.id === currentBuilding.building.id);
+					this.marketService.saveBuildingMarket({ id: buildingMarket.id, amount: buildingMarket.amount + 1 });
+				}));
+
+				return this.battleRepository.save({ id: battle.id, trophies: 2 });
+			}
+		}
+		return this.battleRepository.save({ id: battle.id, trophies: 1 });
 	}
 }

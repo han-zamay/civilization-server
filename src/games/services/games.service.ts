@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { GamesRepository } from '../repositories/games.repository';
 import { Game } from '../dao/game.entity';
 import { FASE_ORDER } from '../constants';
@@ -8,13 +8,10 @@ import { PlayersService } from 'src/player/services/players.service';
 import { UsersService } from 'src/users/services/users.service';
 import { TroopsService } from 'src/troops/troops.service';
 import { TroopsType } from 'src/enums/troops-type';
-import { BuildingMarketFilter, BuildingMarketRepository } from '../repositories/building-market.repository';
-import { ResourceMarketFilter, ResourceMarketRepository } from '../repositories/resource-market.repository';
+import { BuildingMarketRepository } from '../repositories/building-market.repository';
+import { ResourceMarketRepository } from '../repositories/resource-market.repository';
 import { Resource } from 'src/enums/resource';
-import { Building } from '../dao/building.entity';
 import { BuildingsRepository } from '../repositories/buildings.repository';
-import { BuildingMarket } from '../dao/building-market.entity';
-import { ResourceMarket } from '../dao/resource-market.entity';
 import { MapService } from 'src/map/services/map.service';
 import { OpenTileDto } from '../dto/open-tile.dto';
 import { NationsService } from 'src/nations/services/nations.service';
@@ -22,11 +19,6 @@ import { getEmptyTiles, getMatrix } from 'src/utils/getEmptyArray';
 import { areCellsAdjust } from 'src/utils/areCellsAdjust';
 import { LootFilter, LootRepository } from '../repositories/loot.repository';
 import { Loot } from '../dao/loot.entity';
-import { PlayersFigure } from 'src/player/dao/player-figure.entity';
-import { FigureMoveDto } from '../dto/figure-move.dto';
-import { Landscape } from 'src/enums/landscape';
-import { Relict } from 'src/enums/relict';
-import { Cell } from 'src/map/dao/cell.entity';
 
 const MarketResources = [Resource.Silk, Resource.Iron, Resource.Incense, Resource.Wheat];
 
@@ -42,48 +34,19 @@ export class GamesService {
 		private readonly buildingsRepository: BuildingsRepository,
 		private readonly mapService: MapService,
 		private readonly nationsService: NationsService,
-		private readonly lootRepository: LootRepository,
-		
+		private readonly lootRepository: LootRepository,		
 	) {}
 
 	public get(id: number): Promise<Game> {
 		return this.gamesRepository.get(id);
 	}
 
-	public getBuilding(id: number): Promise<Building> {
-		return this.buildingsRepository.get(id);
-	}
-
-	public getBuildings(): Promise<Building[]> {
-		return this.buildingsRepository.getList();
-	}
-
-	public getBuildingMarket(data: BuildingMarketFilter): Promise<BuildingMarket> {
-		return this.buildingMarketRepository.get({ gameId: data.gameId, buildingId: data.buildingId });
-	}
-
-	public saveBuildingMarket(data: BuildingMarketFilter): Promise<BuildingMarket> {
-		return this.buildingMarketRepository.save(data);
-	}
-
 	public getLootList(data: LootFilter): Promise<Loot[]> {
 		return this.lootRepository.getList(data);
 	}
 
-	// public saveLoot(data: LootFilter): Promise<Loot> {
-	// 	return this.lootRepository.save(data);
-	// }
-
 	public getLoot(data: LootFilter): Promise<Loot> {
 		return this.lootRepository.get(data);
-	}
-
-	public getResourceMarket(data: ResourceMarketFilter): Promise<ResourceMarket> {
-		return this.resourceMarketRepository.get({ gameId: data.gameId, resource: data.resource });
-	}
-
-	public saveResourceMarket(data: ResourceMarketFilter): Promise<ResourceMarket> {
-		return this.resourceMarketRepository.save(data);
 	}
 
 	public async getPlayers(id: number): Promise<Player[]> {
@@ -331,111 +294,6 @@ export class GamesService {
 		})
 
 		return newGame;
-	}
-
-	public async figureMove(data: FigureMoveDto): Promise<PlayersFigure[]> {
-		const figures = await Promise.all(data.figuresIds.map(async (figureId) => await this.playersService.getPlayersFigure({ id: figureId })));
-		const startingCellId = figures[0].cell?.id;
-		const player = figures[0].player;
-		for(const figure of figures) {
-			if(!figure?.cell) {
-				throw new NotFoundException('your figure doesnt exist');
-			}
-			if(figure.cell.id !== startingCellId) {
-				throw new BadRequestException('u cant move from different cells');
-			}
-			if(figure.player.id !== player.id) {
-				throw new BadRequestException('u cant move your opponents figures');
-			}
-			if(figure.marchPoints < data.path.length) {
-				throw new ConflictException('your figure already moved');
-			}
-		}
-		const cellIds = [startingCellId, ...data.path];
-
-		const targetPointId = cellIds.pop();
-		const targetPoint = await this.mapService.getCell({ id: targetPointId });
-		if(!targetPoint || targetPoint.game.id !== player.game.id) {
-			throw new BadRequestException('smth wrong with your target cell');
-		}
-		if(targetPoint.player?.id === player.id && targetPoint.armyCount + targetPoint.scoutCount + figures.length > player.stakingLimit){
-			throw new ConflictException('u cant exceed staking limit');
-		}
-		if(targetPoint.cell.landscape === Landscape.Water && !player.isStopingOnWater) {
-			throw new BadRequestException('u cant stop in water bro');
-		}
-
-		let cells = [];
-		for (const cellId of cellIds) {
-			const currentCell = await this.mapService.getCell({ id: cellId });
-			if (!currentCell) {
-				throw new NotFoundException('cell doesnt exist');
-			}
-			if(currentCell.game.id !== player.game.id) {
-				throw new BadRequestException('u cant move figures on different games');
-			}
-			if(currentCell.cell.landscape === Landscape.Water && !player.isCrossingWater) {
-				throw new ConflictException('maybe u should learn navigation');
-			}
-			if(currentCell.loot || currentCell.relict) {
-				throw new ConflictException('u cant fly over things');
-			}
-			if(currentCell.player !== null && currentCell.player.id !== player.id) {
-				throw new ConflictException('u cant pass by your opponent');
-			}
-			if(currentCell.armyCount + currentCell.scoutCount + figures.length > player.stakingLimit) {
-				throw new ConflictException('u cant exceed staking limit');
-			}
-			cells.push(currentCell);
-		};
-		cells.push(targetPoint);
-		
-		for(let i = 1; i < cells.length; i++) {
-			let areAdjust = areCellsAdjust(cells[i - 1].x, cells[i - 1].y, cells[i].x, cells[i].y);
-			if(!areAdjust) {
-				throw new BadRequestException('are u charging up your path in kiosk?');
-			}
-		}
-
-		return Promise.all(figures.map((figure) => this.playersService.savePlayersFigure({
-			id: figure.id,
-			x: targetPoint.x,
-			y: targetPoint.y,
-			marchPoints: 0
-		})));
-	}
-
-	public async findRelict(cellId: number): Promise<Cell> {
-		const cell = await this.mapService.getCell({ id: cellId });
-		if(!cell) {
-			throw new BadRequestException('smth wrong with your cell');
-		}
-		switch(cell.relict) {
-			case Relict.Ark: {
-				console.log(cell.relict);
-				break;
-			}
-			case Relict.Village: {
-				console.log(cell.relict);
-				break;
-			}
-			case Relict.Atlantis: {
-				console.log(cell.relict);
-				break;
-			}
-			case Relict.School: {
-				console.log(cell.relict);
-				break;
-			}
-			case Relict.SevenCities: {
-				console.log(cell.relict);
-				break;
-			}
-			default: {
-				throw new BadRequestException('relict not working(((');
-			}
-		}
-		return this.mapService.saveCell({ id: cell.id, relict: null });
 	}
 
 	public save(data: Partial<Game>): Promise<Game> {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Game } from './dao/game.entity';
 import { GamesController } from './games.controller';
@@ -24,11 +24,17 @@ import { Nation } from 'src/nations/dao/nation.entity';
 import { NationsModule } from 'src/nations/nations.module';
 import { LootRepository } from './repositories/loot.repository';
 import { Loot } from './dao/loot.entity';
+import { CitiesModule } from 'src/city/cities.module';
+import { City } from 'src/city/dao/city.entity';
+import { BattlesModule } from 'src/battles/batttles.module';
+import { Battle } from 'src/battles/dao/battle.entity';
+import { MovementService } from './services/movement.service';
+import { MarketService } from './services/market.service';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Game, Player, User, Building, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, PlayersFigure, Nation, Loot]), UsersModule, PlayersModule, TroopsModule, MapModule, NationsModule],
+	imports: [TypeOrmModule.forFeature([Game, Player, User, Building, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, PlayersFigure, Nation, Loot, City, Battle]), UsersModule, PlayersModule, TroopsModule, MapModule, NationsModule, forwardRef(() => CitiesModule), forwardRef(() => BattlesModule)],
 	controllers: [GamesController],
-	exports: [GamesService],
-	providers: [GamesService, GamesRepository, BuildingMarketRepository, ResourceMarketRepository, BuildingsRepository, LootRepository],
+	exports: [GamesService, MovementService, MarketService],
+	providers: [GamesService, MovementService, MarketService, GamesRepository, BuildingMarketRepository, ResourceMarketRepository, BuildingsRepository, LootRepository],
 })
 export class GamesModule {}
