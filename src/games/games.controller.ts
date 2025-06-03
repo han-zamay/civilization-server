@@ -14,12 +14,12 @@ export class GamesController {
 		private readonly movementService: MovementService,
 	) {}
 
-	@Post('/figure-move')
+	@Post('figure-move')
 	figureMove(@Body() body: FigureMoveDto): Promise<figureMoveResponse> {
 		return this.movementService.figureMove(body);
 	}
 
-	@Get('/validate-path')
+	@Get('validate-path')
 	async validatePath(@Body() body: FigureMoveDto): Promise<boolean> {
 		const isPathCorrect = await this.movementService.isPathCorrect(body);
 		return isPathCorrect.response;

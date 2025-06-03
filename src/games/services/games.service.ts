@@ -19,6 +19,7 @@ import { getEmptyTiles, getMatrix } from 'src/utils/getEmptyArray';
 import { areCellsAdjust } from 'src/utils/areCellsAdjust';
 import { LootFilter, LootRepository } from '../repositories/loot.repository';
 import { Loot } from '../dao/loot.entity';
+import { CultureCardService } from 'src/culture/services/culture-card.service';
 
 const MarketResources = [Resource.Silk, Resource.Iron, Resource.Incense, Resource.Wheat];
 
@@ -34,7 +35,8 @@ export class GamesService {
 		private readonly buildingsRepository: BuildingsRepository,
 		private readonly mapService: MapService,
 		private readonly nationsService: NationsService,
-		private readonly lootRepository: LootRepository,		
+		private readonly lootRepository: LootRepository,
+		private readonly cultureCardService: CultureCardService,
 	) {}
 
 	public get(id: number): Promise<Game> {
@@ -274,6 +276,8 @@ export class GamesService {
 				resource,
 				amount: newGame.playersCount,
 			}))]);
+
+		await this.cultureCardService.prepareCultureCards(newGame.id);
 		
 		const infantryUnits = await this.troopsService.getList({ type: TroopsType.Infantry });
 		const cavalryUnits = await this.troopsService.getList({ type: TroopsType.Cavalry });

@@ -3,7 +3,7 @@ import { PlayersTechnologiesService } from './services/players-technologies.serv
 import { SavePlayersTechnologiesDto } from './dto/save-players-technologies.dto';
 import { PlayersTechnologies } from './dao/player-technology.entity';
 
-@Controller('players/technologies')
+@Controller('/technologies')
 export class PlayersTechnologiesController {
 	constructor(private readonly playersTechnologiesService: PlayersTechnologiesService) {}
 

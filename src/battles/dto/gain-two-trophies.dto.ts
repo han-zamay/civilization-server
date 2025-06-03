@@ -1,4 +1,5 @@
-import { IsNumber, IsOptional } from "class-validator";
+import { IsEnum, IsNumber, IsOptional } from "class-validator";
+import { Technology } from "src/enums/technology";
 
 export class GainTwoTrophiesDto {
     @IsOptional()
@@ -6,6 +7,6 @@ export class GainTwoTrophiesDto {
     coinToSteal?: number; //0 - steal coin from civ list, otherwise playersTechnologyId
 
     @IsOptional()
-    @IsNumber()
-    technologyToSteal?: number;
+    @IsEnum(Technology)
+    technologyToSteal?: Technology;
 }
