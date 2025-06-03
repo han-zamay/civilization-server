@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Technology } from './dao/technology.entity';
-import { TechnologiesController } from './technologies.controller';
-import { TechnologiesService } from './services/technologies.service';
-import { TechnologiesRepository } from './repositories/technologies.repository';
+import { PlayersTechnologiesController } from './players-technologies.controller';
+import { PlayersTechnologies } from './dao/player-technology.entity';
+import { PlayersTechnologiesService } from './services/players-technologies.service';
+import { PlayersTechnologiesRepository } from './repositories/players-technologies.repository';
+import { PlayersModule } from 'src/player/players.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Technology])],
-	controllers: [TechnologiesController],
-	providers: [TechnologiesService, TechnologiesRepository],
-	exports: [TechnologiesService],
+	imports: [TypeOrmModule.forFeature([PlayersTechnologies]), PlayersModule],
+	controllers: [PlayersTechnologiesController],
+	providers: [PlayersTechnologiesService, PlayersTechnologiesRepository],
+	exports: [PlayersTechnologiesService],
 })
 export class TechnologiesModule {}

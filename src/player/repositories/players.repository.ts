@@ -18,6 +18,7 @@ export type PlayerFilter = {
 	travelSpeed?: number;
 	isCrossingWater?: boolean;
 	isStopingOnWater?: boolean;
+	cultureLevel?: number;
 };
 
 @Injectable()
@@ -71,6 +72,7 @@ export class PlayersRepository {
 			travelSpeed: data?.travelSpeed ?? undefined,
 			isCrossingWater: data?.isCrossingWater ?? undefined,
 			isStopingOnWater: data?.isStopingOnWater ?? undefined,
+			cultureLevel: data?.cultureLevel ?? undefined,
 		});
 	}
 	private toWhereOptions(filter: PlayerFilter): FindOptionsWhere<Player> {

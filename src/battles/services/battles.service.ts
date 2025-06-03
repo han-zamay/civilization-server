@@ -11,8 +11,8 @@ import { Player } from "src/player/dao/player.entity";
 import { GainOneTrophyDto } from "../dto/gain-one-trophy.dto";
 import { PlayersResources } from "src/player/dao/player-resource.entity";
 import { GainTwoTrophiesDto } from "../dto/gain-two-trophies.dto";
-import { PlayersTechnologiesService } from "src/player/services/players-technologies.service";
-import { PlayersTechnologies } from "src/player/dao/player-technology.entity";
+import { PlayersTechnologiesService } from "src/technologies/services/players-technologies.service";
+import { PlayersTechnologies } from "src/technologies/dao/player-technology.entity";
 import { MapService } from "src/map/services/map.service";
 import { CitiesService } from "src/city/services/cities.service";
 import { PlayersFigure } from "src/player/dao/player-figure.entity";
@@ -263,12 +263,12 @@ export class BattlesService {
 					const player = await this.playersService.savePlayer({ id: loser.id, coinsOnList: loser.coinsOnList - 1, coins: loser.coins - 1 });
 					return { player };
 				}
-				const playerTechnology = await this.playersService.getPlayersTechnology({ id: data.coinToDelete });
+				const playerTechnology = await this.playersTechnologiesService.getPlayersTechnology({ id: data.coinToDelete });
 				if(!playerTechnology || playerTechnology.coinsOnTechnology === 0) {
 					throw new BadRequestException('u shoto pereputal');
 				}
 				await this.battleRepository.save({ id: battle.id, trophies: battle.trophies - 1 });
-				await this.playersService.savePlayersTechnologies({ id: playerTechnology.id, coinsOnTechnology: playerTechnology.coinsOnTechnology - 1 });
+				await this.playersTechnologiesService.savePlayersTechnologies({ id: playerTechnology.id, coinsOnTechnology: playerTechnology.coinsOnTechnology - 1 });
 				const player = await this.playersService.savePlayer({ id: loser.id, coins: loser.coins - 1 });
 				return { player };
 			}
@@ -294,7 +294,7 @@ export class BattlesService {
 		const loser = await this.playersService.getPlayer({ id: battle.loserId });
 		switch(wantedTrophies[0]) {
 			case 'technologyToSteal': {
-				const technologyToSteal = await this.playersService.getPlayersTechnology({ playerId: loser.id, technologyId: data.technologyToSteal });
+				const technologyToSteal = await this.playersTechnologiesService.getPlayersTechnology({ playerId: loser.id, technology: data.technologyToSteal });
 				if(!technologyToSteal) {
 					throw new BadRequestException('u cant steal this technology');
 				}
@@ -312,12 +312,12 @@ export class BattlesService {
 					const player = await this.playersService.savePlayer({ id: winner.id, coinsOnList: winner.coinsOnList + 1, coins: winner.coins + 1 });
 					return { player };
 				}
-				const playerTechnology = await this.playersService.getPlayersTechnology({ id: data.coinToSteal });
+				const playerTechnology = await this.playersTechnologiesService.getPlayersTechnology({ id: data.coinToSteal });
 				if(!playerTechnology || playerTechnology.coinsOnTechnology === 0) {
 					throw new BadRequestException('u shoto pereputal');
 				}
 				await this.battleRepository.save({ id: battle.id, trophies: battle.trophies - 1 });
-				await this.playersService.savePlayersTechnologies({ id: playerTechnology.id, coinsOnTechnology: playerTechnology.coinsOnTechnology - 1});
+				await this.playersTechnologiesService.savePlayersTechnologies({ id: playerTechnology.id, coinsOnTechnology: playerTechnology.coinsOnTechnology - 1});
 				await this.playersService.savePlayer({ id: loser.id, coins: loser.coins - 1 });
 				const player = await this.playersService.savePlayer({ id: winner.id, coinsOnList: winner.coinsOnList + 1, coins: winner.coins +1 });
 				return { player };

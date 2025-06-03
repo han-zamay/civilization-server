@@ -93,4 +93,14 @@ export class Player {
 		default: false,
 	})
 	isStopingOnWater: boolean;
+
+	@Column({
+		default: -1,
+	})
+	cultureLevel: number;
+
+	@Column({
+		default: 2,
+	})
+	cultureHandSize: number;
 }

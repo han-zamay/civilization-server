@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, Repository } from 'typeorm';
 import { PlayersTechnologies } from '../dao/player-technology.entity';
+import { Technology } from 'src/enums/technology';
 
 export type PlayersTechnologiesFilter = {
 	id?: number;
 	playerId?: number;
-	technologyId?: number;
-	level?: number;
+	technology?: Technology;
 	coinsOnTechnology?: number;
 };
 
@@ -23,7 +23,6 @@ export class PlayersTechnologiesRepository {
 			where: this.toWhereOptions(filter),
 			relations: {
 				player: true,
-				technology: true,
 			},
 		});
 	}
@@ -33,7 +32,6 @@ export class PlayersTechnologiesRepository {
 			where: this.toWhereOptions(filter),
 			relations: {
 				player: true,
-				technology: true,
 			},
 		});
 	}
@@ -44,9 +42,7 @@ export class PlayersTechnologiesRepository {
 			player: {
 				id: data.playerId,
 			},
-			technology: {
-				id: data.technologyId,
-			},
+			technology: data.technology,
 			coinsOnTechnology: data.coinsOnTechnology,
 		});
 	}
@@ -57,10 +53,7 @@ export class PlayersTechnologiesRepository {
 			player: {
 				id: filter?.playerId,
 			},
-			technology: {
-				id: filter?.technologyId,
-				level: filter?.level,
-			},
+			technology: filter?.technology,
 		};
 	}
 }

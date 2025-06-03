@@ -18,11 +18,13 @@ import { BattleRepository } from "./repositories/battle.repository";
 import { BattleTroopsRepository } from "./repositories/battle-troops.repository";
 import { MapModule } from "src/map/map.module";
 import { Cell } from "src/map/dao/cell.entity";
+import { TechnologiesModule } from "src/technologies/technologies.module";
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([PlayersResources, Player, PlayersTroops, Troop, Game, City, Battle, BattleTroops, Cell]),
 		PlayersModule,
+		TechnologiesModule,
 		TroopsModule,
         CitiesModule,
 		MapModule,

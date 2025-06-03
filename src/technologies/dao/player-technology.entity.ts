@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Technology } from '../../technologies/dao/technology.entity';
 import { Player } from 'src/player/dao/player.entity';
+import { Technology } from 'src/enums/technology';
 
 @Entity({ name: 'players_technologies' })
 export class PlayersTechnologies {
@@ -10,7 +10,7 @@ export class PlayersTechnologies {
 	@ManyToOne(() => Player)
 	player: Player;
 
-	@ManyToOne(() => Technology)
+	@Column()
 	technology: Technology;
 
 	@Column({

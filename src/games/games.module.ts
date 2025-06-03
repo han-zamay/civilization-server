@@ -30,9 +30,10 @@ import { BattlesModule } from 'src/battles/batttles.module';
 import { Battle } from 'src/battles/dao/battle.entity';
 import { MovementService } from './services/movement.service';
 import { MarketService } from './services/market.service';
+import { CultureModule } from 'src/culture/culture.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Game, Player, User, Building, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, PlayersFigure, Nation, Loot, City, Battle]), UsersModule, PlayersModule, TroopsModule, MapModule, NationsModule, forwardRef(() => CitiesModule), forwardRef(() => BattlesModule)],
+	imports: [TypeOrmModule.forFeature([Game, Player, User, Building, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, PlayersFigure, Nation, Loot, City, Battle]), UsersModule, PlayersModule, TroopsModule, MapModule, NationsModule, forwardRef(() => CitiesModule), forwardRef(() => BattlesModule), CultureModule],
 	controllers: [GamesController],
 	exports: [GamesService, MovementService, MarketService],
 	providers: [GamesService, MovementService, MarketService, GamesRepository, BuildingMarketRepository, ResourceMarketRepository, BuildingsRepository, LootRepository],
