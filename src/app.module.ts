@@ -30,6 +30,7 @@ import { PlayersFigure } from './player/dao/player-figure.entity';
 import { Loot } from './games/dao/loot.entity';
 import { CardInGame } from './culture/dao/card-in-game.entity';
 import { CultureModule } from './culture/culture.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
 	imports: [
@@ -52,6 +53,7 @@ import { CultureModule } from './culture/culture.module';
 		MapModule,
 		NationsModule,
 		CultureModule,
+		AuthModule,
 	],
 })
 export class AppModule {}
