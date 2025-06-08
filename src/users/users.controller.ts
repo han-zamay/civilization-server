@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { UsersService } from './services/users.service';
 import { User } from './dao/user.entity';
+import { SaveUserDto } from './dto/SaveUserDto';
 
 @Controller('users')
 export class UsersController {
@@ -12,7 +13,7 @@ export class UsersController {
 	}
 
 	@Post()
-	save(@Body() body): Promise<User> {
+	save(@Body() body: SaveUserDto): Promise<User> {
 		return this.usersService.save(body);
 	}
 }
