@@ -31,9 +31,11 @@ import { Loot } from './games/dao/loot.entity';
 import { CardInGame } from './culture/dao/card-in-game.entity';
 import { CultureModule } from './culture/culture.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 	imports: [
+		ConfigModule.forRoot({ isGlobal: true }),
 		TypeOrmModule.forRoot({
 			type: 'postgres',
 			host: 'localhost',

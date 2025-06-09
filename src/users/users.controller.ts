@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { UsersService } from './services/users.service';
+import { AuthResponse, UsersService } from './services/users.service';
 import { User } from './dao/user.entity';
 import { SaveUserDto } from './dto/SaveUserDto';
 
@@ -13,7 +13,7 @@ export class UsersController {
 	}
 
 	@Post()
-	save(@Body() body: SaveUserDto): Promise<User> {
+	save(@Body() body: SaveUserDto): Promise<AuthResponse> {
 		return this.usersService.save(body);
 	}
 }

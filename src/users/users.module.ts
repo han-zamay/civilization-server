@@ -4,11 +4,12 @@ import { User } from './dao/user.entity';
 import { UsersRepository } from './repositories/users.repository';
 import { UsersService } from './services/users.service';
 import { UsersController } from './users.controller';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([User])],
 	controllers: [UsersController],
 	exports: [UsersService],
-	providers: [UsersService, UsersRepository],
+	providers: [UsersService, UsersRepository, JwtService],
 })
 export class UsersModule {}
