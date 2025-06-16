@@ -5,7 +5,7 @@ import { User } from '../dao/user.entity';
 
 export type UserFilter = {
 	id?: number;
-    username?: string;
+	username?: string;
 	email?: string;
 };
 
@@ -36,7 +36,7 @@ export class UsersRepository {
 		return {
 			id: filter?.id,
 			email: filter?.email,
-            username: filter?.username,
+			username: filter?.username,
 		};
 	}
 }

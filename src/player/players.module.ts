@@ -17,12 +17,6 @@ import { NationsModule } from 'src/nations/nations.module';
 	imports: [TypeOrmModule.forFeature([Player, PlayersResources, PlayersTroops, PlayersFigure, Nation]), NationsModule],
 	controllers: [PlayersController],
 	exports: [PlayersService],
-	providers: [
-		PlayersService,
-		PlayersRepository,
-		PlayersResourcesRepository,
-		PlayersTroopsRepository,
-		PlayersFiguresRepository,
-	],
+	providers: [PlayersService, PlayersRepository, PlayersResourcesRepository, PlayersTroopsRepository, PlayersFiguresRepository],
 })
 export class PlayersModule {}

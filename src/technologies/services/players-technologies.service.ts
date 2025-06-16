@@ -3,7 +3,7 @@ import { PlayersTechnologiesFilter, PlayersTechnologiesRepository } from '../rep
 import { PlayersTechnologies } from '../dao/player-technology.entity';
 import { SavePlayersTechnologiesDto } from '../dto/save-players-technologies.dto';
 import { Player } from '../../player/dao/player.entity';
-import { technologiesWithCoins, TechnologyLevelMap } from '../technology-consts';
+import { technologiesWithCoins, TechnologyLevelMap } from '../../consts/technology-consts';
 import { Technology } from 'src/enums/technology';
 import { PlayersService } from 'src/player/services/players.service';
 
@@ -93,7 +93,9 @@ export class PlayersTechnologiesService {
 
 		const playerTechnologies = await this.playersTechnologiesRepository.getList({ playerId: data.playerId });
 		const thisLevelTech = playerTechnologies.filter((playerTechnology) => TechnologyLevelMap[playerTechnology.technology] === data.level).length;
-		const prevLevelTech = playerTechnologies.filter((playerTechnology) => TechnologyLevelMap[playerTechnology.technology] === data.level - 1).length;
+		const prevLevelTech = playerTechnologies.filter(
+			(playerTechnology) => TechnologyLevelMap[playerTechnology.technology] === data.level - 1,
+		).length;
 
 		return prevLevelTech - thisLevelTech >= 2 ? true : false;
 	}

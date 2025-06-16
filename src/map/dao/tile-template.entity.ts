@@ -6,12 +6,12 @@ export class TileTemplate {
 	id: number;
 
 	@Column({
-        type: 'jsonb',
-    })
-    cells: number[][];
+		type: 'jsonb',
+	})
+	cells: number[][];
 
-    @Column({
-        default: false,
-    })
-    isNationTile: boolean;
+	@Column({
+		default: false,
+	})
+	isNationTile: boolean;
 }

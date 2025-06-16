@@ -9,46 +9,46 @@ export class CellTemplate {
 	id: number;
 
 	@Column({
-        default: 0,
-    })
-    hammers: number;
+		default: 0,
+	})
+	hammers: number;
 
-    @Column({
-        default: 0,
-    })
-    tradePoints: number;
+	@Column({
+		default: 0,
+	})
+	tradePoints: number;
 
-    @Column({
-        default: 0,
-    })
-    culturePoints: number;
+	@Column({
+		default: 0,
+	})
+	culturePoints: number;
 
-    @Column({
-        default: false,
-    })
-    coin: boolean;
+	@Column({
+		default: false,
+	})
+	coin: boolean;
 
-    @Column({
-        default: null,
-        nullable: true,
-    })
-    resource: Resource;
+	@Column({
+		default: null,
+		nullable: true,
+	})
+	resource: Resource;
 
-    @Column({
-        default: false,
-    })
-    hutMarker: boolean;
+	@Column({
+		default: false,
+	})
+	hutMarker: boolean;
 
-    @Column({
-        default: false,
-    })
-    villageMarker: boolean;
+	@Column({
+		default: false,
+	})
+	villageMarker: boolean;
 
-    @Column({
-        default: null,
-    })
-    relict: Relict;
+	@Column({
+		default: null,
+	})
+	relict: Relict;
 
-    @Column()
-    landscape: Landscape;
+	@Column()
+	landscape: Landscape;
 }

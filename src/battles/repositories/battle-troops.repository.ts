@@ -29,7 +29,7 @@ export class BattleTroopsRepository {
 			relations: {
 				player: true,
 				battle: true,
-			}
+			},
 		});
 	}
 
@@ -39,7 +39,7 @@ export class BattleTroopsRepository {
 			relations: {
 				player: true,
 				battle: true,
-			}
+			},
 		});
 	}
 
@@ -58,7 +58,7 @@ export class BattleTroopsRepository {
 			battle: {
 				id: filter?.battleId,
 			},
-		})
+		});
 	}
 
 	private toWhereOptions(filter?: BattleTroopsFilter): FindOptionsWhere<BattleTroops> {

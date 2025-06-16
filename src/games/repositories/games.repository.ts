@@ -17,7 +17,7 @@ export class GamesRepository {
 			},
 			relations: {
 				players: true,
-			}
+			},
 		});
 	}
 

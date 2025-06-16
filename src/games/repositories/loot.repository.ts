@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { Loot } from '../dao/loot.entity';
 import { Resource } from 'src/enums/resource';
 
 export type LootFilter = {
 	id?: number;
-    isVillage?: boolean;
-    resource?: Resource;
-    isImmediately?: boolean;
+	isVillage?: boolean;
+	resource?: Resource;
+	isImmediately?: boolean;
 };
 
 @Injectable()
@@ -30,21 +30,21 @@ export class LootRepository {
 		});
 	}
 
-    // public save(data: LootFilter): Promise<Loot> {
-    //     return this.repository.save({
-    //         id: data?.id,
-    //         isVillage: data?.isVillage,
-    //         resource: data?.resource,
-    //         isImmediately: data?.isImmediately,
-    //     })
-    // }
+	// public save(data: LootFilter): Promise<Loot> {
+	//     return this.repository.save({
+	//         id: data?.id,
+	//         isVillage: data?.isVillage,
+	//         resource: data?.resource,
+	//         isImmediately: data?.isImmediately,
+	//     })
+	// }
 
 	private toWhereOptions(filter?: LootFilter): FindOptionsWhere<Loot> {
 		return {
 			id: filter?.id,
-            isVillage: filter?.isVillage,
-            resource: filter?.resource,
-            isImmediately: filter?.isImmediately
+			isVillage: filter?.isVillage,
+			resource: filter?.resource,
+			isImmediately: filter?.isImmediately,
 		};
 	}
 }

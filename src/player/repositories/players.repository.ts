@@ -53,15 +53,21 @@ export class PlayersRepository {
 	public save(data: PlayerFilter): Promise<Player> {
 		return this.repository.save({
 			id: data?.id,
-			game: data?.gameId ? {
-				id: data.gameId,
-			} : undefined,
-			user: data?.userId ? {
-				id: data.userId,
-			} : undefined,
-			nation: data?.nationId ? {
-				id: data.nationId,
-			} : undefined,
+			game: data?.gameId
+				? {
+						id: data.gameId,
+					}
+				: undefined,
+			user: data?.userId
+				? {
+						id: data.userId,
+					}
+				: undefined,
+			nation: data?.nationId
+				? {
+						id: data.nationId,
+					}
+				: undefined,
 			playersOrder: data?.playersOrder ?? undefined,
 			coins: data?.coins ?? undefined,
 			tradePoints: data?.tradePoints ?? undefined,

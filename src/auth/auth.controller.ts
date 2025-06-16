@@ -1,49 +1,26 @@
-import { Controller, Request, Post, UseGuards, Body, UnauthorizedException, Get } from '@nestjs/common';
-import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
-import { AuthService } from './auth.service';
-import { JwtService } from '@nestjs/jwt';
+import { Controller, Request, Post, UseGuards, Body, Get } from '@nestjs/common';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuthService } from './services/auth.service';
+import { RefreshTokensDto } from './dto/RefreshTokensDto';
+import { ValidateUserDto } from './dto/ValidateUserDto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private jwtService: JwtService,
-  ) {}
-  
-  @UseGuards(LocalAuthGuard)
-  @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
-  }
+	constructor(private authService: AuthService) {}
 
-  @UseGuards(JwtAuthGuard)
-  @Get('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
-  
-  @UseGuards(LocalAuthGuard)
-  @Post('logout')
-  async logout(@Request() req) {
-    return req.logout();
-  }
+	@Post('login')
+	async login(@Body() body: ValidateUserDto) {
+		return this.authService.login(body);
+	}
 
-  @Post('refresh')
-  async refresh(@Body() { refreshToken }: { refreshToken: string }) {
-    try {
-      const payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
-      });
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	getProfile(@Request() req) {
+		return req.user;
+	}
 
-      const newAccessToken = this.jwtService.sign(
-        { username: payload.username, sub: payload.sub },
-        { secret: process.env.JWT_ACCESS_SECRET, expiresIn: '15m' }
-      );
-
-      return { access_token: newAccessToken };
-    } catch (e) {
-      throw new UnauthorizedException('Invalid refresh token');
-    }
-}
+	@Post('refresh')
+	async refresh(@Body() body: RefreshTokensDto) {
+		return this.authService.refresh(body);
+	}
 }

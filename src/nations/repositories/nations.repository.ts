@@ -21,13 +21,13 @@ export class NationsRepository {
 		});
 	}
 
-    public getList(filter?: NationFilter): Promise<Nation[]> {
+	public getList(filter?: NationFilter): Promise<Nation[]> {
 		return this.repository.find({
 			where: this.toWhereOptions(filter),
 		});
 	}
 
-    private toWhereOptions(filter?: NationFilter): FindOptionsWhere<Nation> {
+	private toWhereOptions(filter?: NationFilter): FindOptionsWhere<Nation> {
 		return {
 			id: filter?.id,
 			name: filter?.name,

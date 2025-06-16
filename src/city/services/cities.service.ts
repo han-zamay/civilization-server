@@ -25,7 +25,7 @@ import { MarketService } from 'src/games/services/market.service';
 export type CreateCityResponse = {
 	city: City;
 	center: Cell;
-}
+};
 
 @Injectable()
 export class CitiesService {
@@ -48,15 +48,15 @@ export class CitiesService {
 
 	public async createCapital(playerId: number, coordinates: CreateCapitalDto): Promise<CreateCityResponse> {
 		const currentPlayer = await this.playersService.getPlayer({ id: playerId });
-		if(!currentPlayer) {
+		if (!currentPlayer) {
 			throw new BadRequestException('player doesnt exist');
 		}
-		if(currentPlayer.game.fase !== Fase.Start) {
+		if (currentPlayer.game.fase !== Fase.Start) {
 			throw new BadRequestException('u can build cities only on start fase');
 		}
 
 		const citiesCount = (await this.citiesRepository.getList({ playerId })).length;
-		if(citiesCount > 0) {
+		if (citiesCount > 0) {
 			throw new BadRequestException('u already have a capital');
 		}
 		return this.saveCity(currentPlayer, coordinates.x, coordinates.y, true);
@@ -64,22 +64,22 @@ export class CitiesService {
 
 	public async createCity(figureId: number): Promise<CreateCityResponse> {
 		const figure = await this.playersService.getPlayersFigure({ id: figureId });
-		if(!figure?.cell) {
+		if (!figure?.cell) {
 			throw new BadRequestException('figure doesnt exist');
 		}
-		if(figure.player.game.fase !== Fase.Start) {
+		if (figure.player.game.fase !== Fase.Start) {
 			throw new BadRequestException('u can build cities only on start fase');
 		}
-		if(figure.isArmy) {
+		if (figure.isArmy) {
 			throw new BadRequestException('buy yourself scout, huilusha');
 		}
 
 		const citiesCount = (await this.citiesRepository.getList({ playerId: figure.player.id })).length;
-		if(citiesCount === figure.player.citiesLimit) {
+		if (citiesCount === figure.player.citiesLimit) {
 			throw new BadRequestException('u cant build more cities');
 		}
 		const newCity = await this.saveCity(figure.player, figure.x, figure.y, false);
-		if(!newCity) {
+		if (!newCity) {
 			throw new BadRequestException('smth went wrong');
 		}
 		await this.playersService.savePlayersFigure({ id: figure.id, onField: false, x: null, y: null });
@@ -88,26 +88,26 @@ export class CitiesService {
 
 	public async createBuilding(id: number, data: CreateBuildingDto): Promise<CitiesBuildings> {
 		const city = await this.citiesRepository.get({ id });
-		if(!city?.action) {
+		if (!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
 		const building = await this.marketService.getBuilding(data.id);
-		if(!building) {
+		if (!building) {
 			throw new BadRequestException('no such building');
 		}
 
 		const buildingMarket = await this.marketService.getBuildingMarket({ gameId: city.player.game.id, buildingId: building.id });
-		if(buildingMarket.amount === 0) {
+		if (buildingMarket.amount === 0) {
 			throw new BadRequestException('no building on the market');
 		}
 
-		if(city.havingSpecialBuilding && building.isSpecial) {
+		if (city.havingSpecialBuilding && building.isSpecial) {
 			throw new BadRequestException('u already have special building');
 		}
-		if(city.hammers < building.hammersPrice) {
+		if (city.hammers < building.hammersPrice) {
 			throw new BadRequestException('not enough hammers');
 		}
-		if(building.isSpecial) {
+		if (building.isSpecial) {
 			await this.citiesRepository.save({
 				id: city.id,
 				havingSpecialBuilding: true,
@@ -120,34 +120,34 @@ export class CitiesService {
 
 	public async createFigure(id: number, data: CreateFigureDto): Promise<PlayersFigure> {
 		const city = await this.citiesRepository.get({ id });
-		if(!city?.action) {
+		if (!city?.action) {
 			throw new BadRequestException('city already did its action');
 		}
 
 		const figure = await this.playersService.getPlayersFigure({ id: data.figureId });
-		if(!figure || figure.cell) {
+		if (!figure || figure.cell) {
 			throw new BadRequestException('figure cant be createted');
 		}
 
-		if(figure.player.id !== city.player.id) {
+		if (figure.player.id !== city.player.id) {
 			throw new BadRequestException('wtf?');
 		}
 
-		if(!isCityOutskirt(city.x, city.y, data.x, data.y)) {
+		if (!isCityOutskirt(city.x, city.y, data.x, data.y)) {
 			throw new BadRequestException('u cant build figure here');
 		}
 		const cell = await this.mapService.getCell({ id: city.player.game.map[data.y][data.x] });
-		if(cell.figures.length >= figure.player.stakingLimit) {
+		if (cell.figures.length >= figure.player.stakingLimit) {
 			throw new BadRequestException('raise yours stacking limit first!');
 		}
 
-		if(city.hammers < 4 && figure.isArmy || city.hammers < 6 && !figure.isArmy) {
+		if ((city.hammers < 4 && figure.isArmy) || (city.hammers < 6 && !figure.isArmy)) {
 			throw new BadRequestException('not enough hammers');
 		}
 
 		await this.mapService.saveCell({
 			id: cell.id,
-			figures: [...cell.figures, figure ],
+			figures: [...cell.figures, figure],
 			playerId: figure.player.id,
 		});
 		await this.citiesRepository.save({ id: city.id, action: false });
@@ -160,7 +160,7 @@ export class CitiesService {
 			throw new BadRequestException('city already did its action');
 		}
 		const resourceMarket = await this.marketService.getResourceMarket({ gameId: city.player.game.id, resource: data.resource });
-		if(resourceMarket.amount === 0) {
+		if (resourceMarket.amount === 0) {
 			throw new BadRequestException('no resource on market');
 		}
 		if (!city.possibleResources.find((resource) => resource === data.resource)) {
@@ -214,43 +214,47 @@ export class CitiesService {
 		return this.citiesRepository.save(data);
 	}
 
-	private async saveCity(player: Player, x: number, y: number, isCapital: boolean ): Promise<CreateCityResponse> {
-		let cells = [];
-		let map = player.game.map;
-		for(let i = y - 1; i < y + 2; i++ ) {
-			for(let j = x - 1; j < x + 2; j++ ) {
-				if(map[i][j] === null || map[i][j] === -1) {
+	private async saveCity(player: Player, x: number, y: number, isCapital: boolean): Promise<CreateCityResponse> {
+		const cells = [];
+		const map = player.game.map;
+		for (let i = y - 1; i < y + 2; i++) {
+			for (let j = x - 1; j < x + 2; j++) {
+				if (map[i][j] === null || map[i][j] === -1) {
 					throw new BadRequestException('wtf');
 				}
-				let cell = await this.mapService.getCell({ id: map[i][j] });
-				if(!cell || cell.loot || cell.relict) {
+				const cell = await this.mapService.getCell({ id: map[i][j] });
+				if (!cell || cell.loot || cell.relict) {
 					throw new BadRequestException('u cant build city here');
 				}
-				if(cell.city !== null) {
+				if (cell.city !== null) {
 					throw new BadRequestException('u cant build city next to another city');
 				}
-				if(cell.player !== null && cell.player?.id !== player.id) {
+				if (cell.player !== null && cell.player?.id !== player.id) {
 					throw new BadRequestException('u cant build next to your opponents');
 				}
 				cells.push(cell);
 			}
 		}
 		const center = cells.splice(4, 1)[0];
-		if(center.cell.landscape === Landscape.Water) {
+		if (center.cell.landscape === Landscape.Water) {
 			throw new BadRequestException('u cant build city on water');
 		}
-		let city = await this.citiesRepository.save({
+		const city = await this.citiesRepository.save({
 			isCapital: isCapital,
-			hammers: cells.reduce((acc, { cell }) =>  acc + cell.hammers, 0),
-			tradePoints: cells.reduce((acc, {cell}) => acc + cell.tradePoints, 0),
-			culturePoints: cells.reduce((acc, {cell}) => acc + cell.culturePoints, 0),
-			possibleResources: cells.reduce((acc, {cell}) => cell.resource !== null ? [...acc, cell.resource] : acc, []),
+			hammers: cells.reduce((acc, { cell }) => acc + cell.hammers, 0),
+			tradePoints: cells.reduce((acc, { cell }) => acc + cell.tradePoints, 0),
+			culturePoints: cells.reduce((acc, { cell }) => acc + cell.culturePoints, 0),
+			possibleResources: cells.reduce((acc, { cell }) => (cell.resource !== null ? [...acc, cell.resource] : acc), []),
 			player,
 			x,
 			y,
 			defense: isCapital ? 12 : 6,
 		});
-		Promise.all(cells.map((cell) => { this.mapService.saveCell({ id: cell.id, cityId: city.id }) }));
+		Promise.all(
+			cells.map((cell) => {
+				this.mapService.saveCell({ id: cell.id, cityId: city.id });
+			}),
+		);
 		const centerCell = await this.mapService.saveCell({ id: center.id, cityId: city.id, playerId: player.id });
 		return { city, center: centerCell };
 	}

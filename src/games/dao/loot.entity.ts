@@ -6,16 +6,16 @@ export class Loot {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-    @Column({
-        default: false,
-    })
-    isVillage: boolean;
+	@Column({
+		default: false,
+	})
+	isVillage: boolean;
 
-    @Column()
-    resource: Resource;
+	@Column()
+	resource: Resource;
 
-    @Column({
-        default: false,
-    })
-    isImmediately: boolean;
+	@Column({
+		default: false,
+	})
+	isImmediately: boolean;
 }

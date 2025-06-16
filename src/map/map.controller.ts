@@ -7,7 +7,7 @@ import { CreateTileDto } from './dto/CreateTileDto';
 export class MapController {
 	constructor(private readonly mapService: MapService) {}
 
-    @Post()
+	@Post()
 	makeTurn(@Body() body: CreateTileDto): Promise<TileTemplate> {
 		return this.mapService.createTile(body.isNationTile);
 	}

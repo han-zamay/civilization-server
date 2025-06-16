@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { CellTemplate } from './cell-template.entity';
 import { Player } from 'src/player/dao/player.entity';
 import { City } from 'src/city/dao/city.entity';
@@ -13,35 +13,35 @@ export class Cell {
 	id: number;
 
 	@ManyToOne(() => CellTemplate)
-    cell: CellTemplate;
+	cell: CellTemplate;
 
-    @ManyToOne(() => City)
-    city: City;
+	@ManyToOne(() => City)
+	city: City;
 
-    @OneToMany(() => PlayersFigure, (figure) => figure.cell)
-    figures: PlayersFigure[];
+	@OneToMany(() => PlayersFigure, (figure) => figure.cell)
+	figures: PlayersFigure[];
 
-    @ManyToOne(() => Loot)
-    loot: Loot;
+	@ManyToOne(() => Loot)
+	loot: Loot;
 
-    @Column({
-        default: null,
-    })
-    relict: Relict;
+	@Column({
+		default: null,
+	})
+	relict: Relict;
 
-    @ManyToOne(() => Player)
-    player: Player;
+	@ManyToOne(() => Player)
+	player: Player;
 
-    @ManyToOne(() => Game)
-    game: Game;
+	@ManyToOne(() => Game)
+	game: Game;
 
-    @Column({
-        nullable: true,
-    })
-    x: number;
+	@Column({
+		nullable: true,
+	})
+	x: number;
 
-    @Column({
-        nullable: true,
-    })
-    y: number;
+	@Column({
+		nullable: true,
+	})
+	y: number;
 }

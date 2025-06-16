@@ -6,9 +6,9 @@ import { ResourceMarket } from '../dao/resource-market.entity';
 
 export type ResourceMarketFilter = {
 	id?: number;
-    gameId?: number;
-    resource?: Resource;
-    amount?: number;
+	gameId?: number;
+	resource?: Resource;
+	amount?: number;
 };
 
 @Injectable()
@@ -30,25 +30,25 @@ export class ResourceMarketRepository {
 		});
 	}
 
-    public save(data: ResourceMarketFilter): Promise<ResourceMarket> {
-        return this.repository.save({
-            id: data?.id,
+	public save(data: ResourceMarketFilter): Promise<ResourceMarket> {
+		return this.repository.save({
+			id: data?.id,
 			game: {
-                id: data?.gameId,
-            },
-            resource: data?.resource,
-            amount: data?.amount,
-        })
-    }
+				id: data?.gameId,
+			},
+			resource: data?.resource,
+			amount: data?.amount,
+		});
+	}
 
 	private toWhereOptions(filter?: ResourceMarketFilter): FindOptionsWhere<ResourceMarket> {
 		return {
 			id: filter?.id,
 			game: {
-                id: filter?.gameId,
-            },
-            resource: filter?.resource,
-            amount: filter?.amount,
+				id: filter?.gameId,
+			},
+			resource: filter?.resource,
+			amount: filter?.amount,
 		};
 	}
 }

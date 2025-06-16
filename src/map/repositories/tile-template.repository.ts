@@ -13,16 +13,16 @@ export class TileTemplateRepository {
 	public get(id: number): Promise<TileTemplate> {
 		return this.repository.findOne({
 			where: {
-                id,
-            },
+				id,
+			},
 		});
 	}
 
 	public getList(isNationTile: boolean): Promise<TileTemplate[]> {
 		return this.repository.find({
 			where: {
-                isNationTile,
-            },
+				isNationTile,
+			},
 		});
 	}
 
