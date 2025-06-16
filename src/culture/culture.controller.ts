@@ -1,7 +1,5 @@
-import { Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { CultureCardService, RaisingCultureLevelResponse } from './services/culture-card.service';
-import { CardInGame } from './dao/card-in-game.entity';
-import { Player } from 'src/player/dao/player.entity';
 
 @Controller('culture')
 export class CultureController {
@@ -16,5 +14,4 @@ export class CultureController {
 	raiseCultureLevel(@Param('id', new ParseIntPipe()) id: number): Promise<RaisingCultureLevelResponse> {
 		return this.cultureCardService.raiseCultureLevel(id);
 	}
-
 }

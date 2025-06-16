@@ -5,9 +5,9 @@ import { BuildingMarket } from '../dao/building-market.entity';
 
 export type BuildingMarketFilter = {
 	id?: number;
-    gameId?: number;
-    buildingId?: number;
-    amount?: number;
+	gameId?: number;
+	buildingId?: number;
+	amount?: number;
 };
 
 @Injectable()
@@ -29,29 +29,29 @@ export class BuildingMarketRepository {
 		});
 	}
 
-    public save(data: BuildingMarketFilter): Promise<BuildingMarket> {
-        return this.repository.save({
-            id: data?.id,
+	public save(data: BuildingMarketFilter): Promise<BuildingMarket> {
+		return this.repository.save({
+			id: data?.id,
 			game: {
-                id: data?.gameId,
-            },
-            building: {
-                id: data?.buildingId,
-            },
-            amount: data?.amount,
-        })
-    }
+				id: data?.gameId,
+			},
+			building: {
+				id: data?.buildingId,
+			},
+			amount: data?.amount,
+		});
+	}
 
 	private toWhereOptions(filter?: BuildingMarketFilter): FindOptionsWhere<BuildingMarket> {
 		return {
 			id: filter?.id,
 			game: {
-                id: filter?.gameId,
-            },
-            building: {
-                id: filter?.buildingId,
-            },
-            amount: filter?.amount,
+				id: filter?.gameId,
+			},
+			building: {
+				id: filter?.buildingId,
+			},
+			amount: filter?.amount,
 		};
 	}
 }

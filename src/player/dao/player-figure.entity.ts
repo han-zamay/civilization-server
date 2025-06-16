@@ -10,24 +10,24 @@ export class PlayersFigure {
 	@ManyToOne(() => Player)
 	player: Player;
 
-    @Column()
-    isArmy: boolean;
+	@Column()
+	isArmy: boolean;
 
-    @ManyToOne(() => Cell)
-    cell: Cell
+	@ManyToOne(() => Cell)
+	cell: Cell;
 
-    @Column({
-        default: null,
-    })
-    x: number;
+	@Column({
+		default: null,
+	})
+	x: number;
 
-    @Column({
-        default: null,
-    })
-    y: number;
+	@Column({
+		default: null,
+	})
+	y: number;
 
-    @Column({
-        default: 0,
-    })
-    marchPoints: number;
+	@Column({
+		default: 0,
+	})
+	marchPoints: number;
 }

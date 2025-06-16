@@ -33,9 +33,43 @@ import { MarketService } from './services/market.service';
 import { CultureModule } from 'src/culture/culture.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Game, Player, User, Building, BuildingMarket, ResourceMarket, Cell, CellTemplate, TileTemplate, PlayersFigure, Nation, Loot, City, Battle]), UsersModule, PlayersModule, TroopsModule, MapModule, NationsModule, forwardRef(() => CitiesModule), forwardRef(() => BattlesModule), CultureModule],
+	imports: [
+		TypeOrmModule.forFeature([
+			Game,
+			Player,
+			User,
+			Building,
+			BuildingMarket,
+			ResourceMarket,
+			Cell,
+			CellTemplate,
+			TileTemplate,
+			PlayersFigure,
+			Nation,
+			Loot,
+			City,
+			Battle,
+		]),
+		UsersModule,
+		PlayersModule,
+		TroopsModule,
+		MapModule,
+		NationsModule,
+		forwardRef(() => CitiesModule),
+		forwardRef(() => BattlesModule),
+		CultureModule,
+	],
 	controllers: [GamesController],
 	exports: [GamesService, MovementService, MarketService],
-	providers: [GamesService, MovementService, MarketService, GamesRepository, BuildingMarketRepository, ResourceMarketRepository, BuildingsRepository, LootRepository],
+	providers: [
+		GamesService,
+		MovementService,
+		MarketService,
+		GamesRepository,
+		BuildingMarketRepository,
+		ResourceMarketRepository,
+		BuildingsRepository,
+		LootRepository,
+	],
 })
 export class GamesModule {}

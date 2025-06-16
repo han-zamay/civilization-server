@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeleteResult, FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { PlayersFigure } from '../dao/player-figure.entity';
 
 export type PlayersFiguresFilter = {
@@ -8,9 +8,9 @@ export type PlayersFiguresFilter = {
 	playerId?: number;
 	cellId?: number;
 	isArmy?: boolean;
-    onField?: boolean;
-    x?: number;
-    y?: number;
+	onField?: boolean;
+	x?: number;
+	y?: number;
 	marchPoints?: number;
 };
 
@@ -52,16 +52,20 @@ export class PlayersFiguresRepository {
 	public save(data: PlayersFiguresFilter): Promise<PlayersFigure> {
 		return this.repository.save({
 			id: data?.id,
-			player: data?.playerId ? {
-				id: data.playerId,
-			} : undefined,
-			cell: data?.cellId ? {
-				id: data.cellId,
-			} : undefined,
+			player: data?.playerId
+				? {
+						id: data.playerId,
+					}
+				: undefined,
+			cell: data?.cellId
+				? {
+						id: data.cellId,
+					}
+				: undefined,
 			isArmy: data?.isArmy,
-            onField: data?.onField,
-            x: data?.x,
-            y: data?.y,
+			onField: data?.onField,
+			x: data?.x,
+			y: data?.y,
 			marchPoints: data?.marchPoints,
 		});
 	}
@@ -80,8 +84,8 @@ export class PlayersFiguresRepository {
 				id: filter?.cellId,
 			},
 			isArmy: filter?.isArmy,
-            x: filter?.x,
-            y: filter?.y,
+			x: filter?.x,
+			y: filter?.y,
 		};
 	}
 }

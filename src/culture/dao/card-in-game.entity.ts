@@ -11,9 +11,9 @@ export class CardInGame {
 	@Column()
 	name: CultureCard;
 
-    @ManyToOne(() => Game)
+	@ManyToOne(() => Game)
 	@Index()
-    game: Game;
+	game: Game;
 
 	@ManyToOne(() => Player, { nullable: true })
 	player?: Player;
@@ -21,5 +21,5 @@ export class CardInGame {
 	@Column({
 		default: false,
 	})
-    isUsed: boolean;
+	isUsed: boolean;
 }

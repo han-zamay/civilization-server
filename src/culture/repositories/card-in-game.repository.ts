@@ -7,9 +7,9 @@ import { CultureCard } from 'src/enums/cultureCard';
 export type CardInGameFilter = {
 	id?: number;
 	name?: CultureCard;
-    gameId?: number;
+	gameId?: number;
 	playerId?: number;
-    isUsed?: boolean;
+	isUsed?: boolean;
 };
 
 @Injectable()
@@ -23,7 +23,7 @@ export class CardInGameRepository {
 		return this.repository.findOne({
 			where: this.toWhereOptions(filter),
 			relations: {
-                game: true,
+				game: true,
 				player: true,
 			},
 		});
@@ -33,7 +33,7 @@ export class CardInGameRepository {
 		return this.repository.find({
 			where: this.toWhereOptions(filter),
 			relations: {
-                game: true,
+				game: true,
 				player: true,
 			},
 		});
@@ -43,9 +43,9 @@ export class CardInGameRepository {
 		return this.repository.save({
 			id: data?.id,
 			name: data?.name,
-            game: {
-                id: data?.gameId
-            },
+			game: {
+				id: data?.gameId,
+			},
 			player: {
 				id: data?.playerId,
 			},
@@ -54,26 +54,28 @@ export class CardInGameRepository {
 	}
 
 	public saveMany(data: CardInGameFilter[]): Promise<CardInGame[]> {
-		return this.repository.save(data.map((card) => ({
-			id: card?.id,
-			name: card?.name,
-            game: {
-                id: card?.gameId
-            },
-			player: {
-				id: card?.playerId,
-			},
-			isUsed: card?.isUsed,
-		})));
+		return this.repository.save(
+			data.map((card) => ({
+				id: card?.id,
+				name: card?.name,
+				game: {
+					id: card?.gameId,
+				},
+				player: {
+					id: card?.playerId,
+				},
+				isUsed: card?.isUsed,
+			})),
+		);
 	}
 
 	private toWhereOptions(filter: CardInGameFilter): FindOptionsWhere<CardInGame> {
 		return {
 			id: filter?.id,
 			name: filter?.name,
-            game: {
-                id: filter?.gameId
-            },
+			game: {
+				id: filter?.gameId,
+			},
 			player: {
 				id: filter?.playerId,
 			},

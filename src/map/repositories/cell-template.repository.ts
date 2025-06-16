@@ -7,7 +7,7 @@ import { Relict } from 'src/enums/relict';
 export type CellTemplateFilter = {
 	id?: number;
 	hut?: boolean;
-    village?: boolean;
+	village?: boolean;
 	relict?: Relict;
 };
 
@@ -24,13 +24,13 @@ export class CellTemplateRepository {
 		});
 	}
 
-    public getList(filter?: CellTemplateFilter): Promise<CellTemplate[]> {
+	public getList(filter?: CellTemplateFilter): Promise<CellTemplate[]> {
 		return this.repository.find({
 			where: this.toWhereOptions(filter),
 		});
 	}
 
-    private toWhereOptions(filter?: CellTemplateFilter): FindOptionsWhere<CellTemplate> {
+	private toWhereOptions(filter?: CellTemplateFilter): FindOptionsWhere<CellTemplate> {
 		return {
 			id: filter?.id,
 			hutMarker: filter?.hut,

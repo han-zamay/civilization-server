@@ -8,11 +8,11 @@ export class ResourceMarket {
 	id: number;
 
 	@ManyToOne(() => Game)
-    game: Game;
+	game: Game;
 
-    @Column()
-    resource: Resource;
+	@Column()
+	resource: Resource;
 
-    @Column()
-    amount: number;
+	@Column()
+	amount: number;
 }

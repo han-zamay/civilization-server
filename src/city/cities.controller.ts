@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
+import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { CitiesService, CreateCityResponse } from './services/cities.service';
 import { CitiesBuildings } from './dao/city-building.entity';
 import { PlayersResources } from 'src/player/dao/player-resource.entity';
@@ -6,7 +6,6 @@ import { GainResourceDto } from './dto/gain-resource.dto';
 import { GainTroopDto } from './dto/gain-troop.dto';
 import { PlayersTroops } from 'src/player/dao/player-troop.entity';
 import { CreateBuildingDto } from './dto/create-building.dto';
-import { City } from './dao/city.entity';
 import { CreateFigureDto } from './dto/create-figure.dto';
 import { PlayersFigure } from 'src/player/dao/player-figure.entity';
 import { CreateCapitalDto } from './dto/create-capital.dto';

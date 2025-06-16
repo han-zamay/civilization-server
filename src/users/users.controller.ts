@@ -9,7 +9,7 @@ export class UsersController {
 
 	@Get(':id')
 	get(@Param('id', new ParseIntPipe()) id: number): Promise<User> {
-		return this.usersService.get(id);
+		return this.usersService.get({ id });
 	}
 
 	@Post()

@@ -1,10 +1,8 @@
-import { Body, Controller, Param, ParseIntPipe, Post } from "@nestjs/common";
-import { BattlesService, GainOneTrophyResponse, GainTwoTrophiesResponse, MakeTurnResponse } from "./services/battles.service";
-import { StartBattleDto } from "./dto/start-battle-dto";
-import { Battle } from "./dao/battle.entity";
-import { MakeTurnDto } from "./dto/make-turn-dto";
-import { GainOneTrophyDto } from "./dto/gain-one-trophy.dto";
-import { GainTwoTrophiesDto } from "./dto/gain-two-trophies.dto";
+import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { BattlesService, GainOneTrophyResponse, GainTwoTrophiesResponse, MakeTurnResponse } from './services/battles.service';
+import { MakeTurnDto } from './dto/make-turn-dto';
+import { GainOneTrophyDto } from './dto/gain-one-trophy.dto';
+import { GainTwoTrophiesDto } from './dto/gain-two-trophies.dto';
 
 @Controller('battles')
 export class BattlesController {

@@ -8,11 +8,11 @@ export class BuildingMarket {
 	id: number;
 
 	@ManyToOne(() => Game)
-    game: Game;
+	game: Game;
 
-    @ManyToOne(() => Building)
-    building: Building;
+	@ManyToOne(() => Building)
+	building: Building;
 
-    @Column()
-    amount: number;
+	@Column()
+	amount: number;
 }

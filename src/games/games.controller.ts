@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post } from '@nestjs/common';
 import { GamesService } from './services/games.service';
 import { Game } from './dao/game.entity';
 import { SaveGameDto } from './dto/save-game.dto';

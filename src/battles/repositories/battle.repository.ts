@@ -7,7 +7,7 @@ export type BattleFilter = {
 	id?: number;
 	attackPlayerId?: number;
 	defensePlayerId?: number;
-    isAttackTurn?: boolean;
+	isAttackTurn?: boolean;
 	trophies?: number;
 	winnerId?: number;
 	loserId?: number;
@@ -28,7 +28,7 @@ export class BattleRepository {
 				attackPlayer: true,
 				defensePlayer: true,
 				cell: true,
-			}
+			},
 		});
 	}
 
@@ -39,7 +39,7 @@ export class BattleRepository {
 				attackPlayer: true,
 				defensePlayer: true,
 				cell: true,
-			}
+			},
 		});
 	}
 
@@ -55,11 +55,11 @@ export class BattleRepository {
 			cell: {
 				id: filter?.cellId,
 			},
-            isAttackTurn: filter?.isAttackTurn,
+			isAttackTurn: filter?.isAttackTurn,
 			trophies: filter?.trophies,
 			winnerId: filter?.winnerId,
 			loserId: filter?.loserId,
-		})
+		});
 	}
 
 	private toWhereOptions(filter?: BattleFilter): FindOptionsWhere<Battle> {
@@ -74,7 +74,7 @@ export class BattleRepository {
 			cell: {
 				id: filter?.cellId,
 			},
-            isAttackTurn: filter?.isAttackTurn,
+			isAttackTurn: filter?.isAttackTurn,
 		};
 	}
 }

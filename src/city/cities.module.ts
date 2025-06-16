@@ -23,11 +23,23 @@ import { MapModule } from 'src/map/map.module';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Building, City, CitiesBuildings, PlayersResources, Player, PlayersTroops, Troop, BuildingMarket, ResourceMarket, PlayersFigure, Cell]),
+		TypeOrmModule.forFeature([
+			Building,
+			City,
+			CitiesBuildings,
+			PlayersResources,
+			Player,
+			PlayersTroops,
+			Troop,
+			BuildingMarket,
+			ResourceMarket,
+			PlayersFigure,
+			Cell,
+		]),
 		PlayersModule,
 		TroopsModule,
 		forwardRef(() => GamesModule),
-		MapModule
+		MapModule,
 	],
 	controllers: [CitiesController],
 	exports: [CitiesService],

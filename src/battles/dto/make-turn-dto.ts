@@ -5,7 +5,7 @@ export class MakeTurnDto {
 	@IsNumber()
 	battleTroopId: number;
 
-    @IsDefined()
+	@IsDefined()
 	@IsNumber()
 	placement: number;
 }

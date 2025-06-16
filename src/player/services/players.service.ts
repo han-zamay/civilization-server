@@ -53,7 +53,7 @@ export class PlayersService {
 	public savePlayersTroops(filter?: PlayersTroopsFilter): Promise<PlayersTroops> {
 		return this.playersTroopsRepository.save(filter);
 	}
-	
+
 	public deletePlayersTroop(id: number): Promise<DeleteResult> {
 		return this.playersTroopsRepository.delete(id);
 	}

@@ -9,32 +9,32 @@ export class BattleTroops {
 	id: number;
 
 	@Column({
-        default: -1, //-1 - troop on players hand, -2 - troop died in battle
-    })
-    placement: number;
+		default: -1, //-1 - troop on players hand, -2 - troop died in battle
+	})
+	placement: number;
 
-    @Column()
-    troopType: TroopsType;
+	@Column()
+	troopType: TroopsType;
 
-    @Column({
-        nullable: true, // for advantage troop
-    })
-    troopId: number;
+	@Column({
+		nullable: true, // for advantage troop
+	})
+	troopId: number;
 
-    @Column()
-    health: number;
+	@Column()
+	health: number;
 
-    @Column()
-    attack: number;
+	@Column()
+	attack: number;
 
-    @Column({
-        default: 0,
-    })
-    damage: number;
+	@Column({
+		default: 0,
+	})
+	damage: number;
 
-    @ManyToOne(() => Player)
-    player: Player;
+	@ManyToOne(() => Player)
+	player: Player;
 
-    @ManyToOne(() => Battle)
-    battle: Battle;
+	@ManyToOne(() => Battle)
+	battle: Battle;
 }
